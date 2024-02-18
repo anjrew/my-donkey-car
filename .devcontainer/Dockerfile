@@ -1,23 +1,32 @@
-# Note: You can use any Debian/Ubuntu based image you want. 
-FROM mcr.microsoft.com/devcontainers/python:3.9-buster
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-20.04
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+# Install Miniconda
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh && \
+    bash Miniconda3-py39_23.3.1-0-Linux-x86_64.sh -b -p /miniconda && \
+    rm Miniconda3-py39_23.3.1-0-Linux-x86_64.sh
 
-RUN pip install --upgrade pip
+# Add Miniconda to PATH
+ENV PATH /miniconda/bin:$PATH
 
-RUN pip install donkeycar[pc]
+# Create Conda Environment and Install Dependencies
+RUN conda create -n donkey python=3.9 -y && \
+    conda run -n donkey pip install --default-timeout=120 --retries=5 donkeycar[pc]
 
-# Install Donkeycar (Developer Install for this example)
+# Clone Donkeycar Repository and Install in Developer Mode
 WORKDIR /projects
 RUN git clone https://github.com/autorope/donkeycar && \
     cd donkeycar && \
     git checkout main && \
-    pip install -e .[pc]
+    conda run -n donkey pip install -e .[pc]
 
-# Optional: Install CUDA toolkit for GPU support
-RUN conda install cudatoolkit=11 -c pytorch
+# Install CUDA Toolkit
+RUN conda install -n donkey cudatoolkit=11 -c pytorch -y
+
+# Since `conda run` can have issues with interactive scripts, we use `/bin/bash -c` for commands needing the environment
+# For commands that require the environment, use:
+# RUN /bin/bash -c "source activate donkey && <your-command>"
+# Example for creating a car directory (adjust if this command needs the environment):
+RUN /bin/bash -c "source activate donkey && donkey createcar --path ~/mycar"
 
 # Set the working directory to /projects/donkeycar
 WORKDIR /projects/donkeycar
