@@ -10,23 +10,23 @@
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
 	},
 	"features": {
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-			"version": "latest",
-			"enableNonRootDocker": "true",
-			"moby": "true"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-			"installTools": true,
-			"installJupyterlab": true,
-			"version": "3.9"
-		},
-		"ghcr.io/devcontainers-contrib/features/black:2": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers-contrib/features/flake8:2": {
-			"version": "latest",
-			"plugins": "flake8-black"
-		}
+		// "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+		// 	"version": "latest",
+		// 	"enableNonRootDocker": "true",
+		// 	"moby": "true"
+		// },
+		// "ghcr.io/devcontainers/features/python:1": {
+		// 	"installTools": true,
+		// 	"installJupyterlab": true,
+		// 	"version": "3.9"
+		// },
+		// "ghcr.io/devcontainers-contrib/features/black:2": {
+		// 	"version": "latest"
+		// },
+		// "ghcr.io/devcontainers-contrib/features/flake8:2": {
+		// 	"version": "latest",
+		// 	"plugins": "flake8-black"
+		// }
 	},
 	"customizations": {
 		"vscode": {

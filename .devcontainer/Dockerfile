@@ -1,35 +1,39 @@
+# Use a specific version of the VS Code devcontainers base image
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-20.04
 
 # Install Miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh && \
-    bash Miniconda3-py39_23.3.1-0-Linux-x86_64.sh -b -p /miniconda && \
-    rm Miniconda3-py39_23.3.1-0-Linux-x86_64.sh
+RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-py39_23.3.1-0-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p /miniconda && \
+    rm /tmp/miniconda.sh
 
-# Add Miniconda to PATH
+# Add Miniconda to PATH for all users
 ENV PATH /miniconda/bin:$PATH
 
-# Create Conda Environment and Install Dependencies
-RUN conda create -n donkey python=3.9 -y && \
-    conda run -n donkey pip install --default-timeout=120 --retries=5 donkeycar[pc]
+# Initialize Conda for bash shell and create the 'donkey' Conda environment
+RUN conda init bash && \
+    conda create -n donkey python=3.9 -y && \
+    conda clean -afy
 
-# Clone Donkeycar Repository and Install in Developer Mode
+# Install Donkeycar in the 'donkey' environment
+RUN echo ". /miniconda/etc/profile.d/conda.sh" && \
+    echo "conda activate donkey" && \
+    conda run -n donkey pip install donkeycar[pc]
+
+# Clone the DonkeyCar repository and install it in Developer Mode
 WORKDIR /projects
 RUN git clone https://github.com/autorope/donkeycar && \
     cd donkeycar && \
     git checkout main && \
     conda run -n donkey pip install -e .[pc]
 
-# Install CUDA Toolkit
-RUN conda install -n donkey cudatoolkit=11 -c pytorch -y
+# Optional: Install CUDA toolkit in the 'donkey' environment if GPU support is needed
+# RUN conda install -n donkey cudatoolkit=11 -c pytorch -y
 
-# Since `conda run` can have issues with interactive scripts, we use `/bin/bash -c` for commands needing the environment
-# For commands that require the environment, use:
-# RUN /bin/bash -c "source activate donkey && <your-command>"
-# Example for creating a car directory (adjust if this command needs the environment):
-RUN /bin/bash -c "source activate donkey && donkey createcar --path ~/mycar"
+# Ensure the 'vscode' user's shell is properly configured to use 'conda activate'
+RUN echo ". /miniconda/etc/profile.d/conda.sh" >> /home/vscode/.bashrc && \
+    echo "conda activate donkey" >> /home/vscode/.bashrc
 
-# Set the working directory to /projects/donkeycar
+# Set the working directory to the DonkeyCar project within the container
 WORKDIR /projects/donkeycar
 
-# Command to keep the container running (e.g., opening a shell)
-CMD ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-c", "sleep infinity"]
