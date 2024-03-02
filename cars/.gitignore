@@ -1,0 +1,10 @@
+# Ignore directories named 'data', 'logs', or 'models' at any level
+**/data/
+**/logs/
+**/models/
+
+# Ignore files named 'manage.py', 'myconfig.py', or 'calibrate.py' at any level
+**/manage.py
+**/myconfig.py
+**/calibrate.py
+**/train.py
