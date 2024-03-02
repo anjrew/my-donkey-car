@@ -4,7 +4,7 @@ This project contains files relating to my work on the Donkey Car project. The D
 
 ## Environment Setup
 
-The environment is to be setup in conjusction with the [Donkey Car](http://www.donkeycar.com) platform [instructions on installing the software](http://docs.donkeycar.com/guide/install_software/#step-1-install-software-on-host-pc).
+The environment is to be setup in conjunction with the [Donkey Car](http://www.donkeycar.com) platform [instructions on installing the software](http://docs.donkeycar.com/guide/install_software/#step-1-install-software-on-host-pc).
 
 The project can be setup in one of the three ways:
 - Dev container with VS Code
@@ -20,3 +20,8 @@ Contributions to the project are welcome! Please follow the standard GitHub pull
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Other Resources
+
+- [Donkey Car](http://www.donkeycar.com)
+- [Donkey Car Documentation](http://docs.donkeycar.com/)
