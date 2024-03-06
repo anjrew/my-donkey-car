@@ -5,6 +5,5 @@
 
 # Ignore files named 'manage.py', 'myconfig.py', or 'calibrate.py' at any level
 **/manage.py
-**/myconfig.py
 **/calibrate.py
 **/train.py

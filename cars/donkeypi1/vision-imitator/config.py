@@ -762,5 +762,5 @@ SHOW_FPS = False
 FPS_DEBUG_INTERVAL = 10    # the interval in seconds for printing the frequency info into the shell
 
 # PI connection
-PI_USERNAME = "pi"
-PI_HOSTNAME = "donkeypi.local"
+PI_USERNAME = "donkey1"
+PI_HOSTNAME = "donkeypi1"
