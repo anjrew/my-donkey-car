@@ -3,7 +3,8 @@
 **/logs/
 **/models/
 
-# Ignore files named 'manage.py', 'myconfig.py', or 'calibrate.py' at any level
+# Ignore files named 'manage.py', or 'calibrate.py' at any level
 **/manage.py
 **/calibrate.py
 **/train.py
+**/config.py
