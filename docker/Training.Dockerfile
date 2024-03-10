@@ -7,7 +7,7 @@ RUN pip install donkeycar[pc]
 WORKDIR /app
 
 ENV TUB_PATH="data"
-ENV MODEL_NAME="model"
+ENV MODEL_PATH="./models/mypilot.h5"
 ENV MODEL_TYPE="linear"
 ENV CONFIG_PATH="config.py"
 ENV MYCONFIG_PATH="myconfig.py"
@@ -16,7 +16,7 @@ ENV COMMENT="Training run started"
 
 CMD donkey train \
     --tub "${TUB_PATH}" \
-    --model "${MODEL_NAME}" \
+    --model "${MODEL_PATH}" \
     --type "${MODEL_TYPE}" \
     --config "${CONFIG_PATH}" \
     --myconfig "${MYCONFIG_PATH}" \
