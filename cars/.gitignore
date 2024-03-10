@@ -2,9 +2,15 @@
 **/data/
 **/logs/
 **/models/
+**/model/
 
 # Ignore files named 'manage.py', or 'calibrate.py' at any level
 **/manage.py
 **/calibrate.py
 **/train.py
 **/config.py
+
+# Ouput files
+**/*/.png
+**/*/.tflite
+**/*/.mp4

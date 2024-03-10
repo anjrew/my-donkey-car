@@ -477,12 +477,14 @@ PWM_STEERING_THROTTLE = {
 # #           return self.blur.run(image)
 # #   ```
 # #
-# AUGMENTATIONS = []         # changes to image only applied in training to create
-#                            # more variety in the data.
-# TRANSFORMATIONS = []       # changes applied _before_ training augmentations,
-#                            # such that augmentations are applied to the transformed image,
-# POST_TRANSFORMATIONS = []  # transformations applied _after_ training augmentations,
-#                            # such that changes are applied to the augmented image
+# AUGMENTATIONS = ['MULTIPLY', 'BLUR']    # changes to image only applied in training to create
+AUGMENTATIONS = ['BLUR']    # changes to image only applied in training to create
+# AUGMENTATIONS = ['MULTIPLY']    # changes to image only applied in training to create
+#                                       # more variety in the data.
+# TRANSFORMATIONS = []                    # changes applied _before_ training augmentations,
+#                                       # such that augmentations are applied to the transformed image,
+# POST_TRANSFORMATIONS = []               # transformations applied _after_ training augmentations,
+#                                       # such that changes are applied to the augmented image
 # 
 # # Settings for brightness and blur, use 'MULTIPLY' and/or 'BLUR' in
 # # AUGMENTATIONS
