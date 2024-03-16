@@ -1,5 +1,11 @@
 # Controllers
 
+For the main documentation on using the controllers with Donkey Car, see [this](http://docs.donkeycar.com/parts/controllers/
+
+# Custom Controllers
+
+For custom controllers not natively supported by Donkey Car, you may need to create a custom controller class. See [this](http://docs.donkeycar.com/utility/donkey/#joystick-wizard) page for more information on creating a custom controller class via the joystick setup wizard.
+
 ## Xbox 1
 
 See [this](http://docs.donkeycar.com/parts/controllers/) link and the section of XBox One Controller Pairing
