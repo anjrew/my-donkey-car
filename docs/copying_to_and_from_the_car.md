@@ -13,4 +13,14 @@ In previous step we managed to get a model trained on the data. Now is time to m
 
 Use rsync again to move your trained model pilot back to your car.
 
+```bash
 rsync -rv --progress --partial ~/mycar/models/ pi@<your_ip_address>:~/mycar/models/
+```
+
+## Copy from the car to the host PC
+
+In a new terminal session on your host PC use rsync to copy your cars folder from the Raspberry Pi.
+
+```bash
+rsync -rv --progress --partial pi@<your_pi_ip_address>:~/mycar/data/  ~/mycar/data/
+```
