@@ -1,3 +1,10 @@
+# flake8: noqa
+
+###########################################################################
+# Created on the 29.4.2024 at the gravity gym at teh drivery
+
+# Dialed in ok but need more PID tuning
+###########################################################################
 # """ 
 # My CAR CONFIG 
 
