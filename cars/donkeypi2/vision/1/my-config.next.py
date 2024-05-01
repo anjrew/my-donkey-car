@@ -39,7 +39,7 @@
 # #
 CAMERA_TYPE = "PICAM"   # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)
 IMAGE_W = 320
-# IMAGE_H = 240
+IMAGE_H = 240
 # IMAGE_DEPTH = 3         # default RGB=3, make 1 for mono
 # CAMERA_FRAMERATE = DRIVE_LOOP_HZ
 # CAMERA_VFLIP = False
@@ -574,7 +574,7 @@ COLOR_THRESHOLD_HIGH = (47, 255, 255)  # HSV light yellow (opencv HSV hue value 
 # 
 # # LineFollower - target (expected) line position and detection thresholds
 # TARGET_PIXEL = None       # If not None, then this is the expected horizontal position in pixels of the yellow line.
-TARGET_PIXEL = IMAGE_W / 2  # If None, then detect the position yellow line at startup;
+TARGET_PIXEL = IMAGE_W // 2  # If None, then detect the position yellow line at startup;
                             # so this assumes you have positioned the car prior to starting.
                             # Alternatively set this to IMAGE_W / 2 to follow middle line
 TARGET_THRESHOLD = 10 # number of pixels from TARGET_PIXEL that vehicle must be pointing
@@ -601,8 +601,9 @@ PID_P = -0.0099         # proportional mult for PID path follower
 PID_I = 0.000         # integral mult for PID path follower
 PID_D = -0.0004       # differential mult for PID path follower
 # 
-PID_P_DELTA = 0.0070   # amount the inc/dec function will change the P value
-PID_D_DELTA = 0.000078 # amount the inc/dec function will change the D value
+PID_P_DELTA = 0.005   # amount the inc/dec function will change the P value
+PID_D_DELTA = 0.00005 # amount the inc/dec function will change the D value
+PID_I_DELTA = 0.0001   # amount the inc/dec function will change the I value
 # 
 OVERLAY_IMAGE = True  # True to draw computer vision overlay on camera image in web ui
                       # NOTE: this does not affect what is saved to the data
@@ -619,4 +620,5 @@ INC_PID_D_BTN = "web/w1"            # button to change PID 'D' constant by PID_D
 DEC_PID_D_BTN = "web/w2"            # button to change PID 'D' constant by -PID_D_DELTA
 INC_PID_P_BTN = "web/w3"            # button to change PID 'P' constant by PID_P_DELTA
 DEC_PID_P_BTN = "web/w4"            # button to change PID 'P' constant by -PID_P_DELTA
+DEC_PID_I_BTN = "web/w5"            # button to change PID 'I' constant by -PID_I_DELTA
 # 

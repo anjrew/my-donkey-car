@@ -43,6 +43,9 @@ from donkeycar.parts.transform import Lambda
 from donkeycar.parts.pipe import Pipe
 from donkeycar.utils import *
 
+import logging
+import os
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -60,8 +63,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
     """
     logger.info(f'PID: {os.getpid()}')
     if cfg.DONKEY_GYM:
-        #the simulator will use cuda and then we usually run out of resources
-        #if we also try to use cuda. so disable for donkey_gym.
+        # The simulator will use cuda and then we usually run out of resources
+        # If we also try to use cuda. so disable for donkey_gym.
         os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 
     if model_type is None:
@@ -86,30 +89,21 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
         from donkeycar.parts.telemetry import MqttTelemetry
         tel = MqttTelemetry(cfg)
         
-    #
     # if we are using the simulator, set it up
-    #
     add_simulator(V, cfg)
 
-
-    #
     # setup encoders, odometry and pose estimation
-    #
     add_odometry(V, cfg)
 
-
-    #
     # setup primary camera
-    #
     add_camera(V, cfg, camera_type)
-
 
     # add lidar
     if cfg.USE_LIDAR:
         from donkeycar.parts.lidar import RPLidar
         if cfg.LIDAR_TYPE == 'RP':
             print("adding RP lidar part")
-            lidar = RPLidar(lower_limit = cfg.LIDAR_LOWER_LIMIT, upper_limit = cfg.LIDAR_UPPER_LIMIT)
+            lidar = RPLidar(lower_limit=cfg.LIDAR_LOWER_LIMIT, upper_limit=cfg.LIDAR_UPPER_LIMIT)
             V.add(lidar, inputs=[],outputs=['lidar/dist_array'], threaded=True)
         if cfg.LIDAR_TYPE == 'YD':
             print("YD Lidar not yet supported")
@@ -146,11 +140,11 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None,
     # For example: adding a button handler is just adding a part with a run_condition
     # set to the button's name, so it runs when button is pressed.
     #
-    V.add(Lambda(lambda v: print(f"web/w1 clicked")), inputs=["web/w1"], run_condition="web/w1")
-    V.add(Lambda(lambda v: print(f"web/w2 clicked")), inputs=["web/w2"], run_condition="web/w2")
-    V.add(Lambda(lambda v: print(f"web/w3 clicked")), inputs=["web/w3"], run_condition="web/w3")
-    V.add(Lambda(lambda v: print(f"web/w4 clicked")), inputs=["web/w4"], run_condition="web/w4")
-    V.add(Lambda(lambda v: print(f"web/w5 clicked")), inputs=["web/w5"], run_condition="web/w5")
+    V.add(Lambda(lambda v: print("web/w1 clicked")), inputs=["web/w1"], run_condition="web/w1")
+    V.add(Lambda(lambda v: print("web/w2 clicked")), inputs=["web/w2"], run_condition="web/w2")
+    V.add(Lambda(lambda v: print("web/w3 clicked")), inputs=["web/w3"], run_condition="web/w3")
+    V.add(Lambda(lambda v: print("web/w4 clicked")), inputs=["web/w4"], run_condition="web/w4")
+    V.add(Lambda(lambda v: print("web/w5 clicked")), inputs=["web/w5"], run_condition="web/w5")
 
     #this throttle filter will allow one tap back for esc reverse
     th_filter = ThrottleFilter()

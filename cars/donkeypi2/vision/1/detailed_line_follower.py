@@ -16,7 +16,7 @@ class LineFollower:
     in the image.
     """
 
-    def __init__(self, pid, cfg):
+    def __init__(self, pid: PID, cfg):
         self.overlay_image = cfg.OVERLAY_IMAGE
         self.scan_y = cfg.SCAN_Y  # num pixels from the top to start horiz scan
         self.scan_height = cfg.SCAN_HEIGHT  # num pixels high to grab from horiz scan
@@ -83,7 +83,7 @@ class LineFollower:
             logger.info(f"Automatically chosen line position = {self.target_pixel}")
 
         assert self.target_pixel is not None, "No target pixel set."
-        assert isinstance(self.target_pixel, int), "Target pixel must be an integer."
+        assert type(self.target_pixel) is int, f"Target pixel must be an integer but was {type(self.target_pixel)}."
 
         if self.pid_st.setpoint != self.target_pixel:
             # this is the target of our steering PID controller
@@ -92,7 +92,7 @@ class LineFollower:
         if confidence >= self.confidence_threshold:
             # invoke the controller with the current yellow line position
             # get the new steering value as it chases the ideal
-            self.steering = self.pid_st(max_yellow)
+            self.steering = self.pid_st(int(max_yellow))
 
             # slow down linearly when away from ideal, and speed up when close
             if abs(max_yellow - self.target_pixel) > self.target_threshold:
@@ -115,7 +115,7 @@ class LineFollower:
         # show some diagnostics
         if self.overlay_image:
             cam_img = self.overlay_display(
-                cam_img, mask, max_yellow, confidence, self.target_pixel
+                cam_img, mask, max_yellow, confidence, int(self.target_pixel)
             )
 
         return self.steering, self.throttle, cam_img
@@ -166,18 +166,37 @@ class LineFollower:
         # Overlay the mask on the ROI of the image
         img[iSlice: iSlice + self.scan_height, :, :] = mask_exp
         
+        target_pixe_color: tuple = (0, 255, 255)
+        max_yellow_color: tuple = (0, 0, 255)  # Red
+
         # Draw a marker or circle at the target pixel location
         self.draw_target_pixel(
-            img, target_pixel, iSlice
+            img, target_pixel, iSlice, color=target_pixe_color
         )
-    
+        
+        # Draw a marker or circle at the max_yellow position
+        self.draw_target_pixel(
+            img, int(max_yellow), iSlice, color=max_yellow_color
+        )
+        
+        # Draw the target pixel threshold region
+        left_threshold = target_pixel - self.target_threshold
+        right_threshold = target_pixel + self.target_threshold
+        cv2.rectangle(
+            img,
+            (left_threshold, iSlice),
+            (right_threshold, iSlice + self.scan_height),
+            (255, 0, 0),
+            2,
+        )
+
         # Prepare the display strings with relevant information
-        display_str = []
-        display_str.append("STEERING:{:.1f}".format(self.steering))
-        display_str.append("THROTTLE:{:.2f}".format(self.throttle))
-        display_str.append("I YELLOW:{:d}".format(max_yellow))
-        display_str.append("CONF:{:.2f}".format(confidence))
-        display_str.append(
+        display_str_col = []
+        display_str_col.append("STEERING:{:.1f}".format(self.steering))
+        display_str_col.append("THROTTLE:{:.2f}".format(self.throttle))
+        display_str_col.append("I YELLOW:{:d}".format(max_yellow))
+        display_str_col.append("CONF:{:.2f}".format(confidence))
+        display_str_col.append(
             "TARGET PIXEL: {:d}".format(target_pixel)
         )
 
@@ -186,10 +205,10 @@ class LineFollower:
         x = 10
 
         # Iterate over each display string and render it on the image
-        for s in display_str:
+        for s in display_str_col:
             cv2.putText(
                 img,
-                s,
+                s[0],
                 color=(0, 0, 0),
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
