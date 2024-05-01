@@ -115,7 +115,11 @@ class LineFollower:
         # show some diagnostics
         if self.overlay_image:
             cam_img = self.overlay_display(
-                cam_img, mask, max_yellow, confidence, int(self.target_pixel)
+                cam_img,
+                mask, 
+                max_yellow, 
+                confidence, 
+                int(self.target_pixel)
             )
 
         return self.steering, self.throttle, cam_img
@@ -166,14 +170,14 @@ class LineFollower:
         # Overlay the mask on the ROI of the image
         img[iSlice: iSlice + self.scan_height, :, :] = mask_exp
         
-        target_pixe_color: tuple = (0, 255, 255)
+        target_pixel_color: tuple = (0, 255, 255)  # Yellow
         max_yellow_color: tuple = (0, 0, 255)  # Red
 
         # Draw a marker or circle at the target pixel location
         self.draw_target_pixel(
-            img, target_pixel, iSlice, color=target_pixe_color
+            img, target_pixel, iSlice, color=target_pixel_color
         )
-        
+
         # Draw a marker or circle at the max_yellow position
         self.draw_target_pixel(
             img, int(max_yellow), iSlice, color=max_yellow_color
