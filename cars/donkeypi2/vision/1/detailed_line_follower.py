@@ -212,11 +212,11 @@ class LineFollower:
         for s in display_str_col:
             cv2.putText(
                 img,
-                s[0],
+                s,
                 color=(0, 0, 0),
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.4,
+                fontScale=0.3,
             )
             y += 10
 

@@ -574,7 +574,7 @@ COLOR_THRESHOLD_HIGH = (47, 255, 255)  # HSV light yellow (opencv HSV hue value 
 # 
 # # LineFollower - target (expected) line position and detection thresholds
 # TARGET_PIXEL = None       # If not None, then this is the expected horizontal position in pixels of the yellow line.
-TARGET_PIXEL = IMAGE_W / 2  # If None, then detect the position yellow line at startup;
+TARGET_PIXEL = IMAGE_W // 2  # If None, then detect the position yellow line at startup;
                             # so this assumes you have positioned the car prior to starting.
                             # Alternatively set this to IMAGE_W / 2 to follow middle line
 TARGET_THRESHOLD = 10 # number of pixels from TARGET_PIXEL that vehicle must be pointing

@@ -1,5 +1,6 @@
 import argparse
 import importlib
+from typing import Dict
 import cv2
 from simple_pid import PID
 
@@ -25,10 +26,17 @@ class Config:
 
 
 def import_class_from_file(file_path, class_name):
-    spec = importlib.util.spec_from_file_location("module.name", file_path)
-    module = importlib.util.module_from_spec(spec)
+    spec = importlib.util.spec_from_file_location("module.name", file_path)  # type: ignore
+    module = importlib.util.module_from_spec(spec)  # type: ignore
     spec.loader.exec_module(module)
     return getattr(module, class_name)
+
+
+def load_config_from_file(file_path) -> Config:
+    config = Config()
+    with open(file_path, 'r') as file:
+        exec(file.read(), globals(), config.__dict__)
+    return config
 
 
 def main(cfg):
@@ -94,11 +102,16 @@ if __name__ == "__main__":
                         help='CV controller file path')
     parser.add_argument('--follower_class', type=str, default=Config.CV_CONTROLLER_CLASS,
                         help='CV controller class name')
+    parser.add_argument('--config', type=str, help='Configuration file path')
+
     args = parser.parse_args()
 
-    cfg = Config()
-    cfg.CV_CONTROLLER_FILE = args.file
-    cfg.CV_CONTROLLER_CLASS = args.follower_class
+    cfg = load_config_from_file(args.config) if args.config is not None else Config()
+
+    # Override the CV controller file and class if specified in the command line arguments
+    if args.file is not None:
+        cfg.CV_CONTROLLER_FILE = args.file
+    if args.follower_class is not None:
+        cfg.CV_CONTROLLER_CLASS = args.follower_class
 
     main(cfg)
-    
