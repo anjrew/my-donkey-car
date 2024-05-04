@@ -8,7 +8,7 @@
 # - press Escape to reset the low and high hsv value
 # - press 'q' to quit
 #
-from typing import Optional, Tuple
+from typing import Tuple
 import cv2
 import numpy as np
 import sys
@@ -157,7 +157,7 @@ def bgr_to_hsv(pixelRGB):
     Convert a single RGB pixel to HSV
     """
     imgRGB = np.uint8([[pixelRGB]])  # type: ignore
-    imgHSV = cv2.cvtColor(imgRGB, cv2.COLOR_BGR2HSV)
+    imgHSV = cv2.cvtColor(imgRGB, cv2.COLOR_BGR2HSV)  # type: ignore
     pixelHSV = imgHSV[0][0]
     return pixelHSV
 

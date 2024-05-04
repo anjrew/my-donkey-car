@@ -129,12 +129,12 @@ class LineFollower:
         if self.overlay_image:
             cam_img = self.overlay_display(
                 cam_img,
-                mask, 
-                max_yellow, 
-                confidence, 
+                mask,
+                max_yellow,
+                confidence,
                 int(self.target_pixel)
             )
-            
+       
         steering = self.steering if self.steering is not None else 0.0
         return steering, self.throttle, cam_img
 
@@ -158,7 +158,7 @@ class LineFollower:
             markerSize=size,
             thickness=thickness
         )
-    
+
     def overlay_display(
         self,
         cam_img: np.ndarray,
@@ -183,7 +183,7 @@ class LineFollower:
 
         # Overlay the mask on the ROI of the image
         img[iSlice: iSlice + self.scan_height, :, :] = mask_exp
-        
+  
         target_pixel_color: tuple = (0, 255, 255)  # Yellow
         max_yellow_color: tuple = (0, 0, 255)  # Red
 
@@ -196,7 +196,7 @@ class LineFollower:
         self.draw_target_pixel(
             img, int(max_yellow), iSlice, color=max_yellow_color
         )
-        
+ 
         # Draw the target pixel threshold region
         left_threshold = target_pixel - self.target_threshold
         right_threshold = target_pixel + self.target_threshold
@@ -212,7 +212,7 @@ class LineFollower:
         display_str_col = []
         display_str_col.append("STEERING:{:.1f}".format(self.steering))
         display_str_col.append("THROTTLE:{:.2f}".format(self.throttle))
-        display_str_col.append("I YELLOW:{:d}".format(max_yellow))
+        display_str_col.append("MAX YELLOW:{:d}".format(max_yellow))
         display_str_col.append("CONF:{:.2f}".format(confidence))
         display_str_col.append(
             "TARGET PIXEL: {:d}".format(target_pixel)

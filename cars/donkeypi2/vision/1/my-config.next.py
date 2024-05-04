@@ -568,19 +568,19 @@ CV_CONTROLLER_CONDITION = "run_pilot"
 # 
 # # LineFollower - line color and detection area
 SCAN_Y = 80          # num pixels from the top to start horiz scan
-SCAN_HEIGHT = 170      # num pixels high to grab from horiz scan
+SCAN_HEIGHT = 100      # num pixels high to grab from horiz scan
 
 ## THE DRIVERY VALUES
-# COLOR_THRESHOLD_LOW  = (20, 102, 131)    # HSV dark yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
-# COLOR_THRESHOLD_HIGH = (47, 255, 255)  # HSV light yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
+COLOR_THRESHOLD_LOW  = (20, 102, 131)    # HSV dark yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
+COLOR_THRESHOLD_HIGH = (47, 255, 255)  # HSV light yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
 
 ## FOR TESTING AT PIAS:
-COLOR_THRESHOLD_LOW = (23, 74, 80)
-COLOR_THRESHOLD_HIGH = (134, 255, 213)
+# COLOR_THRESHOLD_LOW = (23, 74, 80)
+# COLOR_THRESHOLD_HIGH = (134, 255, 213)
 
 ## TRACK EDGE VALUES
-EDGE_COLOR_THRESHOLD_LOW = (75, 0, 182)
-EDGE_COLOR_THRESHOLD_HIGH = (140, 47, 255)
+EDGE_COLOR_THRESHOLD_LOW = (0, 0, 203)
+EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
 
 
 # 
@@ -603,9 +603,9 @@ CONFIDENCE_THRESHOLD = 0.0015   # The fraction of total sampled pixels that must
 
 # # LineFollower - throttle step controller; increase throttle on straights, descrease on turns
 THROTTLE_MAX = 1    # maximum throttle value the controller will produce
-THROTTLE_MIN = 0.7   # minimum throttle value the controller will produce
+THROTTLE_MIN = 0.8   # minimum throttle value the controller will produce
 THROTTLE_INITIAL = THROTTLE_MIN  # initial throttle value
-THROTTLE_STEP = 0.03  # how much to change throttle when off the line
+THROTTLE_STEP = 0.02  # how much to change throttle when off the line
 
 # # These three PID constants are crucial to the way the car drives. If you are tuning them
 # # start by setting the others zero and focus on first Kp, then Kd, and then Ki.
