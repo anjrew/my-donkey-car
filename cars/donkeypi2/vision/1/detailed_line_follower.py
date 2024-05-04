@@ -1,3 +1,4 @@
+from typing import Optional
 import cv2
 import numpy as np
 from simple_pid import PID
@@ -39,15 +40,27 @@ class LineFollower:
 
         self.pid_st = pid
 
-    def get_i_color(self, cam_img: np.ndarray):
+    def get_i_color(self, cam_img: np.ndarray) -> tuple[int, float, np.ndarray]:
         """
         get the horizontal index of the color at the given slice of the image
         input: cam_image, an RGB numpy array
         output: index of max color, value of cumulative color at that index, and mask of pixels in range
         """
         # take a horizontal slice of the image
-        iSlice = self.scan_y
-        scan_line = cam_img[iSlice: iSlice + self.scan_height, :, :]
+        i_slice = self.scan_y
+        
+        # Get all the pixels in the slice from the image from the top to the bottom of the
+        # scan to the scan height with all horizontal pixels and all color channels
+        scan_line = cam_img[i_slice: i_slice + self.scan_height, :, :]
+        
+        logger.debug(f"scan_line shape: {scan_line.shape}")
+        logger.debug(np.sum(scan_line, axis=0))
+        logger.debug(np.sum(scan_line, axis=1))
+        logger.debug(np.sum(scan_line, axis=2))
+
+        logger.debug(np.max(scan_line, axis=0))
+        logger.debug(np.max(scan_line, axis=1))
+        logger.debug(np.max(scan_line, axis=2))
 
         # convert to HSV color space
         img_hsv = cv2.cvtColor(scan_line, cv2.COLOR_RGB2HSV)
@@ -59,20 +72,20 @@ class LineFollower:
         hist = np.sum(mask, axis=0)
         max_yellow = np.argmax(hist)
 
-        return max_yellow, hist[max_yellow], mask
+        return int(max_yellow), hist[max_yellow], mask
 
-    def run(self, cam_img: np.ndarray):
+    def run(self, cam_img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
         main runloop of the CV controller
-        input: cam_image, an RGB numpy array
-        output: steering, throttle, and the image.
+        INPUT: cam_image, an RGB numpy array
+        OUTPUT: steering, throttle, and the image.
         If overlay_image is True, then the output image
         includes and overlay that shows how the
         algorithm is working; otherwise the image
         is just passed-through untouched.
         """
         if cam_img is None:
-            return 0, 0, False, None
+            return 0, 0, None
 
         max_yellow, confidence, mask = self.get_i_color(cam_img)
 
@@ -121,8 +134,9 @@ class LineFollower:
                 confidence, 
                 int(self.target_pixel)
             )
-
-        return self.steering, self.throttle, cam_img
+            
+        steering = self.steering if self.steering is not None else 0.0
+        return steering, self.throttle, cam_img
 
     def draw_target_pixel(
         self,
@@ -149,7 +163,7 @@ class LineFollower:
         self,
         cam_img: np.ndarray,
         mask: np.ndarray,
-        max_yellow: np.intp,
+        max_yellow: int,
         confidence: float,
         target_pixel: int,
     ) -> np.ndarray:

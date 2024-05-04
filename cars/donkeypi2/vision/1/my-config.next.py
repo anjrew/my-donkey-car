@@ -560,7 +560,7 @@ PWM_STEERING_THROTTLE = {
 # # computer vision template
 # #
 # # configure which part is used as the autopilot - change to use your own autopilot
-CV_CONTROLLER_MODULE = "donkeycar.parts.line_follower"
+CV_CONTROLLER_MODULE = "detailed_line_follower"
 CV_CONTROLLER_CLASS = "LineFollower"
 CV_CONTROLLER_INPUTS = ['cam/image_array']
 CV_CONTROLLER_OUTPUTS = ['pilot/steering', 'pilot/throttle', 'cv/image_array']
