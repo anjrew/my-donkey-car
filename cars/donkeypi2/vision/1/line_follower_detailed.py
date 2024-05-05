@@ -56,15 +56,6 @@ class LineFollower:
         # scan to the scan height with all horizontal pixels and all color channels
         scan_line = cam_img[i_slice: i_slice + self.scan_height, :, :]
 
-        logger.debug(f"scan_line shape: {scan_line.shape}")
-        logger.debug(np.sum(scan_line, axis=0))
-        logger.debug(np.sum(scan_line, axis=1))
-        logger.debug(np.sum(scan_line, axis=2))
-
-        logger.debug(np.max(scan_line, axis=0))
-        logger.debug(np.max(scan_line, axis=1))
-        logger.debug(np.max(scan_line, axis=2))
-
         # convert to HSV color space
         img_hsv = cv2.cvtColor(scan_line, cv2.COLOR_RGB2HSV)
 
