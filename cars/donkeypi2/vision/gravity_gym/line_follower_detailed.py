@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class CannyEdgeDetectionParams:
     low_threshold: int
     high_threshold: int
+    gaussian_blur_kernal_size: int
 
 
 @dataclass
@@ -66,6 +67,11 @@ class LineFollower:
         self.throttle_min = cfg.THROTTLE_MIN
         self.show_steering = cfg.SHOW_STEERING
         self.show_throttle = cfg.SHOW_THROTTLE
+        self.canny_params = CannyEdgeDetectionParams(
+            cfg.CANNY_LOW_THRESHOLD,
+            cfg.CANNY_HIGH_THRESHOLD,
+            cfg.CANNY_KERNEL_SIZE,
+        )
         self.hough_params = HoughLineDetectionParams(
             cfg.HOUGH_RHO,
             cfg.HOUGH_THETA,
@@ -75,11 +81,9 @@ class LineFollower:
         )
         self.pid_st = pid
 
-    def get_i_color(self, cam_img: np.ndarray) -> tuple[int, float, np.ndarray]:
+    def get_roi_mask(self, cam_img: np.ndarray) -> np.ndarray:
         """
-        get the horizontal index of the color at the given slice of the image
-        input: cam_image, an RGB numpy array
-        output: index of max color, value of cumulative color at that index, and mask of pixels in range
+        Get the mask of the center region of the image based on the color thresholds.
         """
         # take a horizontal slice of the image
         i_slice = self.scan_y
@@ -93,31 +97,44 @@ class LineFollower:
 
         # make a mask of the colors in our range we are looking for
         center_mask = cv2.inRange(img_hsv, self.color_thr_low, self.color_thr_hi)
+        return center_mask
 
+    def get_i_color(self, center_mask: np.ndarray) -> tuple[int, float]:
+        """
+        get the horizontal index of the color at the given slice of the image
+        input: cam_image, an RGB numpy array
+        output: index of max color, value of cumulative color at that index
+        """
         # which index of the range has the highest amount of yellow?
         hist = np.sum(center_mask, axis=0)
         max_yellow = np.argmax(hist)
 
-        return int(max_yellow), hist[max_yellow], center_mask
+        return int(max_yellow), hist[max_yellow]
 
     def run_line_detection_on_hsv_mask(
-        self, center_mask: np.ndarray
+        self, roi_mask: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Process the HSV feature extracted center_mask to perform edge detection and line detection.
         input: center_mask, a binary mask representing the extracted colors
         output: edges (edge detection result), line_mask (detected lines)
         """
-        # # Apply Gaussian blur to reduce noise
-        # blurred = cv2.GaussianBlur(center_mask, (5, 5), 0)
+        # Apply Gaussian blur to reduce noise
+        kernal_size = self.canny_params.gaussian_blur_kernal_size
+        kernal = (kernal_size, kernal_size)
+        sigma_standard_deviation = 0
 
-        # # Perform Canny edge detection
-        # edges = cv2.Canny(blurred, 50, 150)
+        blurred = cv2.GaussianBlur(roi_mask, kernal, sigma_standard_deviation)
+
+        # Perform Canny edge detection
+        edges = cv2.Canny(
+            blurred, self.canny_params.low_threshold, self.canny_params.high_threshold
+        )
 
         # Perform Hough transformation to detect lines
         hough_params = self.hough_params
         lines = cv2.HoughLinesP(
-            center_mask,
+            edges,
             rho=hough_params.rho,
             theta=hough_params.theta,
             threshold=hough_params.threshold,
@@ -126,15 +143,16 @@ class LineFollower:
         )
 
         # Create a mask to store the detected lines
-        line_mask = np.zeros_like(center_mask)
+        line_mask = np.zeros_like(roi_mask)
+        line_color = (0, 255, 0)
 
         # Draw the detected lines on the line_mask
         if lines is not None:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                cv2.line(line_mask, (x1, y1), (x2, y2), 255, 2)  # type: ignore
+                cv2.line(line_mask, (x1, y1), (x2, y2), line_color, 2)  # type: ignore
 
-        return center_mask, line_mask
+        return line_mask, lines
 
     def run(self, img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
@@ -149,7 +167,14 @@ class LineFollower:
         if img is None:
             return 0, 0, None
 
-        max_yellow, confidence, mask = self.get_i_color(img)
+        roi_mask = self.get_roi_mask(
+            img,
+        )
+
+        max_yellow, confidence = self.get_i_color(roi_mask)
+
+        # Run edge detection and line detection on the HSV mask for the scan section
+        line_mask, lines = self.run_line_detection_on_hsv_mask(roi_mask)
 
         if self.target_pixel is None:
             # Use the first run of get_i_color to set our relationship with the yellow line.
@@ -192,7 +217,7 @@ class LineFollower:
         # show some diagnostics
         if self.overlay_image:
             img = self.overlay_display(
-                img, mask, max_yellow, confidence, int(self.target_pixel)
+                img, roi_mask, max_yellow, confidence, int(self.target_pixel)
             )
 
         steering = self.steering if self.steering is not None else 0.0
