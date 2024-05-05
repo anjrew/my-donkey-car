@@ -1,1 +1,6 @@
 pytest
+numpy
+flake8
+black
+opencv-python
+ipykernel

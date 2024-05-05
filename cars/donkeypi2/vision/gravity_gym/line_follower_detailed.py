@@ -7,19 +7,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class CannyEdgeDetectionParams:
     low_threshold: int
     high_threshold: int
 
 
-@dataclass     
+@dataclass
 class HoughLineDetectionParams:
-    hough_rho: int
-    hough_theta: int
-    hough_threshold: int
-    hough_min_line_length: int
-    hough_max_line_gap: int
+    rho: int
+    theta: int
+    threshold: int
+    min_line_length: int
+    max_line_gap: int
 
 
 class EdgeDetectionParams:
@@ -43,8 +44,12 @@ class LineFollower:
         self.scan_height = cfg.SCAN_HEIGHT  # num pixels high to grab from horiz scan
         self.color_thr_low = np.asarray(cfg.COLOR_THRESHOLD_LOW)  # hsv dark yellow
         self.color_thr_hi = np.asarray(cfg.COLOR_THRESHOLD_HIGH)  # hsv light yellow
-        self.edge_color_thr_low = np.asarray(cfg.EDGE_COLOR_THRESHOLD_LOW)  # hsv dark edge color
-        self.edge_color_thr_hi = np.asarray(cfg.EDGE_COLOR_THRESHOLD_HIGH)  # hsv light edge color
+        self.edge_color_thr_low = np.asarray(
+            cfg.EDGE_COLOR_THRESHOLD_LOW
+        )  # hsv dark edge color
+        self.edge_color_thr_hi = np.asarray(
+            cfg.EDGE_COLOR_THRESHOLD_HIGH
+        )  # hsv light edge color
         self.target_pixel = (
             cfg.TARGET_PIXEL
         )  # of the N slots above, which is the ideal relationship target
@@ -66,7 +71,7 @@ class LineFollower:
             cfg.HOUGH_THETA,
             cfg.HOUGH_THRESHOLD,
             cfg.HOUGH_MIN_LINE_LENGTH,
-            cfg.HOUGH_MAX_LINE_GAP
+            cfg.HOUGH_MAX_LINE_GAP,
         )
         self.pid_st = pid
 
@@ -81,7 +86,7 @@ class LineFollower:
 
         # Get all the pixels in the slice from the image from the top to the bottom of the
         # scan to the scan height with all horizontal pixels and all color channels
-        scan_line = cam_img[i_slice: i_slice + self.scan_height, :, :]
+        scan_line = cam_img[i_slice : i_slice + self.scan_height, :, :]
 
         # convert to HSV color space
         img_hsv = cv2.cvtColor(scan_line, cv2.COLOR_RGB2HSV)
@@ -95,7 +100,9 @@ class LineFollower:
 
         return int(max_yellow), hist[max_yellow], center_mask
 
-    def run_line_detection_on_hsv_mask(self, center_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def run_line_detection_on_hsv_mask(
+        self, center_mask: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Process the HSV feature extracted center_mask to perform edge detection and line detection.
         input: center_mask, a binary mask representing the extracted colors
@@ -111,11 +118,11 @@ class LineFollower:
         hough_params = self.hough_params
         lines = cv2.HoughLinesP(
             center_mask,
-            rho=hough_params.hough_rho,
-            theta=hough_params.hough_theta,
-            threshold=hough_params.hough_threshold,
-            minLineLength=hough_params.hough_min_line_length,
-            maxLineGap=hough_params.hough_max_line_gap
+            rho=hough_params.rho,
+            theta=hough_params.theta,
+            threshold=hough_params.threshold,
+            minLineLength=hough_params.min_line_length,
+            maxLineGap=hough_params.max_line_gap,
         )
 
         # Create a mask to store the detected lines
@@ -128,8 +135,8 @@ class LineFollower:
                 cv2.line(line_mask, (x1, y1), (x2, y2), 255, 2)  # type: ignore
 
         return center_mask, line_mask
-    
-    def run(self, cam_img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
+
+    def run(self, img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
         main runloop of the CV controller
         INPUT: cam_image, an RGB numpy array
@@ -139,10 +146,10 @@ class LineFollower:
         algorithm is working; otherwise the image
         is just passed-through untouched.
         """
-        if cam_img is None:
+        if img is None:
             return 0, 0, None
 
-        max_yellow, confidence, mask = self.get_i_color(cam_img)
+        max_yellow, confidence, mask = self.get_i_color(img)
 
         if self.target_pixel is None:
             # Use the first run of get_i_color to set our relationship with the yellow line.
@@ -151,7 +158,9 @@ class LineFollower:
             logger.info(f"Automatically chosen line position = {self.target_pixel}")
 
         assert self.target_pixel is not None, "No target pixel set."
-        assert type(self.target_pixel) is int, f"Target pixel must be an integer but was {type(self.target_pixel)}."
+        assert (
+            type(self.target_pixel) is int
+        ), f"Target pixel must be an integer but was {type(self.target_pixel)}."
 
         if self.pid_st.setpoint != self.target_pixel:
             # this is the target of our steering PID controller
@@ -182,16 +191,12 @@ class LineFollower:
 
         # show some diagnostics
         if self.overlay_image:
-            cam_img = self.overlay_display(
-                cam_img,
-                mask,
-                max_yellow,
-                confidence,
-                int(self.target_pixel)
+            img = self.overlay_display(
+                img, mask, max_yellow, confidence, int(self.target_pixel)
             )
 
         steering = self.steering if self.steering is not None else 0.0
-        return steering, self.throttle, cam_img
+        return steering, self.throttle, img
 
     def draw_target_pixel(
         self,
@@ -200,7 +205,7 @@ class LineFollower:
         scan_y: int,
         color: tuple = (0, 255, 255),
         size: int = 5,
-        thickness: int = 2
+        thickness: int = 2,
     ) -> None:
         """
         Draw a marker or circle at the target pixel location on the image.
@@ -211,7 +216,7 @@ class LineFollower:
             color,
             cv2.MARKER_CROSS,
             markerSize=size,
-            thickness=thickness
+            thickness=thickness,
         )
 
     def overlay_display(
@@ -237,21 +242,17 @@ class LineFollower:
         img = np.copy(cam_img)
 
         # Overlay the mask on the ROI of the image
-        img[i_slice: i_slice + self.scan_height, :, :] = mask_exp
+        img[i_slice : i_slice + self.scan_height, :, :] = mask_exp
 
         target_pixel_color: tuple = (0, 255, 255)  # Yellow
         max_yellow_color: tuple = (0, 0, 255)  # Red
         text_color: tuple = (255, 0, 255)  # Neon Pink
 
         # Draw a marker or circle at the target pixel location
-        self.draw_target_pixel(
-            img, target_pixel, i_slice, color=target_pixel_color
-        )
+        self.draw_target_pixel(img, target_pixel, i_slice, color=target_pixel_color)
 
         # Draw a marker or circle at the max_yellow position
-        self.draw_target_pixel(
-            img, int(max_yellow), i_slice, color=max_yellow_color
-        )
+        self.draw_target_pixel(img, int(max_yellow), i_slice, color=max_yellow_color)
 
         # Draw the target pixel threshold region
         left_threshold = target_pixel - self.target_threshold
@@ -270,9 +271,7 @@ class LineFollower:
         display_str_col.append("THROTTLE: {:.2f}%".format(self.throttle * 100))
         display_str_col.append("MAX YELLOW: {:d}".format(max_yellow))
         display_str_col.append("CONF: {:.2f}".format(confidence))
-        display_str_col.append(
-            "TARGET PIXEL: {:d}".format(target_pixel)
-        )
+        display_str_col.append("TARGET PIXEL: {:d}".format(target_pixel))
 
         # Set the initial position for displaying the text
         y = 10
@@ -288,7 +287,7 @@ class LineFollower:
                 fontScale=0.25,
                 color=text_color,
                 thickness=1,
-                lineType=cv2.LINE_AA
+                lineType=cv2.LINE_AA,
             )
             y += 10
 
@@ -308,6 +307,12 @@ class LineFollower:
             bar_height = int(self.throttle * 100)
             bar_x = img.shape[1] - 20
             bar_y = img.shape[0] - 20
-            cv2.rectangle(img, (bar_x, bar_y), (bar_x + bar_width, bar_y - bar_height), (0, 0, 255), -1)
+            cv2.rectangle(
+                img,
+                (bar_x, bar_y),
+                (bar_x + bar_width, bar_y - bar_height),
+                (0, 0, 255),
+                -1,
+            )
 
         return img

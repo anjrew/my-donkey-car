@@ -39,11 +39,11 @@ class Config:
 
 def import_class_from_file(file_path: str, class_name: str, module_name: str) -> type:
     try:
-        spec = importlib.util.spec_from_file_location(module_name, file_path) # type: ignore
+        spec = importlib.util.spec_from_file_location(module_name, file_path)  # type: ignore
         if spec is None:
             raise FileNotFoundError(f"Could not find file: {file_path}")
 
-        module = importlib.util.module_from_spec(spec) # type: ignore
+        module = importlib.util.module_from_spec(spec)  # type: ignore
         spec.loader.exec_module(module)
         return getattr(module, class_name)
     except FileNotFoundError as e:
@@ -57,7 +57,7 @@ def import_class_from_file(file_path: str, class_name: str, module_name: str) ->
         raise
 
 
-def load_config_from_file(file_path) -> Config:
+def load_config_from_file(file_path: str) -> Config:
     config = Config()
     with open(file_path, 'r') as file:
         exec(file.read(), globals(), config.__dict__)
@@ -91,7 +91,7 @@ def main(cfg: Any, image_path: Optional[str] = None):
     print("CV controller class imported successfully.")
 
     print("Press 'q' key on keyboard with window in focus to stop program.")
-    
+
     # Initialize PID controller
     pid = PID(Kp=0.1, Ki=0.01, Kd=0.005, setpoint=0)
 

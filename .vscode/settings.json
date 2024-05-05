@@ -12,9 +12,30 @@
         "ROBOHAT",
         "wiiu"
     ],
-    "flake8.args": [
-        "--max-line-length=130"
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    },
+    "python.autoComplete.extraPaths": [
+        "./venv/lib/python3.11/site-packages",
+        ""
+    ],
+    "python.languageServer": "Pylance",
+    "python.defaultInterpreterPath": "python",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.importFormat": "absolute",
+    "editor.autoIndent": "full",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "python.analysis.extraPaths": [
+        "./venv/lib/python3.11/site-packages"
     ],
     "editor.defaultFormatter": "ms-python.black-formatter",
+    "flake8.args": [
+        "--max-line-length=130",
+        "--ignore=E402",
+        "--ignore=E203"
+    ],
     "cSpell.enabled": false,
 }
