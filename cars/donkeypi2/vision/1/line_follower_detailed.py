@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional
 import cv2
 import numpy as np
@@ -5,6 +6,25 @@ from simple_pid import PID
 import logging
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class CannyEdgeDetectionParams:
+    low_threshold: int
+    high_threshold: int
+
+
+@dataclass     
+class HoughLineDetectionParams:
+    hough_rho: int
+    hough_theta: int
+    hough_threshold: int
+    hough_min_line_length: int
+    hough_max_line_gap: int
+
+
+class EdgeDetectionParams:
+    canny_params: CannyEdgeDetectionParams
+    hough_params: HoughLineDetectionParams
 
 
 class LineFollower:
@@ -41,6 +61,13 @@ class LineFollower:
         self.throttle_min = cfg.THROTTLE_MIN
         self.show_steering = cfg.SHOW_STEERING
         self.show_throttle = cfg.SHOW_THROTTLE
+        self.hough_params = HoughLineDetectionParams(
+            cfg.HOUGH_RHO,
+            cfg.HOUGH_THETA,
+            cfg.HOUGH_THRESHOLD,
+            cfg.HOUGH_MIN_LINE_LENGTH,
+            cfg.HOUGH_MAX_LINE_GAP
+        )
         self.pid_st = pid
 
     def get_i_color(self, cam_img: np.ndarray) -> tuple[int, float, np.ndarray]:
@@ -68,6 +95,40 @@ class LineFollower:
 
         return int(max_yellow), hist[max_yellow], center_mask
 
+    def run_line_detection_on_hsv_mask(self, center_mask: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Process the HSV feature extracted center_mask to perform edge detection and line detection.
+        input: center_mask, a binary mask representing the extracted colors
+        output: edges (edge detection result), line_mask (detected lines)
+        """
+        # # Apply Gaussian blur to reduce noise
+        # blurred = cv2.GaussianBlur(center_mask, (5, 5), 0)
+
+        # # Perform Canny edge detection
+        # edges = cv2.Canny(blurred, 50, 150)
+
+        # Perform Hough transformation to detect lines
+        hough_params = self.hough_params
+        lines = cv2.HoughLinesP(
+            center_mask,
+            rho=hough_params.hough_rho,
+            theta=hough_params.hough_theta,
+            threshold=hough_params.hough_threshold,
+            minLineLength=hough_params.hough_min_line_length,
+            maxLineGap=hough_params.hough_max_line_gap
+        )
+
+        # Create a mask to store the detected lines
+        line_mask = np.zeros_like(center_mask)
+
+        # Draw the detected lines on the line_mask
+        if lines is not None:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                cv2.line(line_mask, (x1, y1), (x2, y2), 255, 2)  # type: ignore
+
+        return center_mask, line_mask
+    
     def run(self, cam_img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
         main runloop of the CV controller
