@@ -23,6 +23,8 @@ class LineFollower:
         self.scan_height = cfg.SCAN_HEIGHT  # num pixels high to grab from horiz scan
         self.color_thr_low = np.asarray(cfg.COLOR_THRESHOLD_LOW)  # hsv dark yellow
         self.color_thr_hi = np.asarray(cfg.COLOR_THRESHOLD_HIGH)  # hsv light yellow
+        self.edge_color_thr_low = np.asarray(cfg.EDGE_COLOR_THRESHOLD_LOW)  # hsv dark edge color
+        self.edge_color_thr_hi = np.asarray(cfg.EDGE_COLOR_THRESHOLD_HIGH)  # hsv light edge color
         self.target_pixel = (
             cfg.TARGET_PIXEL
         )  # of the N slots above, which is the ideal relationship target
@@ -48,11 +50,11 @@ class LineFollower:
         """
         # take a horizontal slice of the image
         i_slice = self.scan_y
-        
+
         # Get all the pixels in the slice from the image from the top to the bottom of the
         # scan to the scan height with all horizontal pixels and all color channels
         scan_line = cam_img[i_slice: i_slice + self.scan_height, :, :]
-        
+
         logger.debug(f"scan_line shape: {scan_line.shape}")
         logger.debug(np.sum(scan_line, axis=0))
         logger.debug(np.sum(scan_line, axis=1))
@@ -66,7 +68,9 @@ class LineFollower:
         img_hsv = cv2.cvtColor(scan_line, cv2.COLOR_RGB2HSV)
 
         # make a mask of the colors in our range we are looking for
-        mask = cv2.inRange(img_hsv, self.color_thr_low, self.color_thr_hi)
+        center_mask = cv2.inRange(img_hsv, self.color_thr_low, self.color_thr_hi)
+        edge_mask = cv2.inRange(img_hsv, self.edge_color_thr_low, self.edge_color_thr_hi)
+        mask = cv2.bitwise_or(center_mask, edge_mask)
 
         # which index of the range has the highest amount of yellow?
         hist = np.sum(mask, axis=0)
@@ -134,7 +138,7 @@ class LineFollower:
                 confidence,
                 int(self.target_pixel)
             )
-       
+    
         steering = self.steering if self.steering is not None else 0.0
         return steering, self.throttle, cam_img
 
@@ -176,44 +180,45 @@ class LineFollower:
         mask_exp = np.stack((mask,) * 3, axis=-1)
 
         # Define the region of interest (ROI) where the line is being detected
-        iSlice = self.scan_y
+        i_slice = self.scan_y
 
         # Make a copy of the original image to avoid modifying it directly
         img = np.copy(cam_img)
 
         # Overlay the mask on the ROI of the image
-        img[iSlice: iSlice + self.scan_height, :, :] = mask_exp
-  
+        img[i_slice: i_slice + self.scan_height, :, :] = mask_exp
+
         target_pixel_color: tuple = (0, 255, 255)  # Yellow
         max_yellow_color: tuple = (0, 0, 255)  # Red
+        text_color: tuple = (255, 0, 255)  # Neon Pink
 
         # Draw a marker or circle at the target pixel location
         self.draw_target_pixel(
-            img, target_pixel, iSlice, color=target_pixel_color
+            img, target_pixel, i_slice, color=target_pixel_color
         )
 
         # Draw a marker or circle at the max_yellow position
         self.draw_target_pixel(
-            img, int(max_yellow), iSlice, color=max_yellow_color
+            img, int(max_yellow), i_slice, color=max_yellow_color
         )
- 
+
         # Draw the target pixel threshold region
         left_threshold = target_pixel - self.target_threshold
         right_threshold = target_pixel + self.target_threshold
         cv2.rectangle(
             img,
-            (left_threshold, iSlice),
-            (right_threshold, iSlice + self.scan_height),
+            (left_threshold, i_slice),
+            (right_threshold, i_slice + self.scan_height),
             (255, 0, 0),
             2,
         )
 
         # Prepare the display strings with relevant information
         display_str_col = []
-        display_str_col.append("STEERING:{:.1f}".format(self.steering))
-        display_str_col.append("THROTTLE:{:.2f}".format(self.throttle))
-        display_str_col.append("MAX YELLOW:{:d}".format(max_yellow))
-        display_str_col.append("CONF:{:.2f}".format(confidence))
+        display_str_col.append("STEERING: {:.1f}".format(self.steering))
+        display_str_col.append("THROTTLE: {:.2f}%".format(self.throttle * 100))
+        display_str_col.append("MAX YELLOW: {:d}".format(max_yellow))
+        display_str_col.append("CONF: {:.2f}".format(confidence))
         display_str_col.append(
             "TARGET PIXEL: {:d}".format(target_pixel)
         )
@@ -227,10 +232,12 @@ class LineFollower:
             cv2.putText(
                 img,
                 s,
-                color=(0, 0, 0),
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.3,
+                fontScale=0.25,
+                color=text_color,
+                thickness=1,
+                lineType=cv2.LINE_AA
             )
             y += 10
 

@@ -582,6 +582,8 @@ COLOR_THRESHOLD_HIGH = (47, 255, 255)  # HSV light yellow (opencv HSV hue value 
 EDGE_COLOR_THRESHOLD_LOW = (0, 0, 203)
 EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
 
+# EDGE_COLOR_THRESHOLD_LOW = (0, 0, 178)
+# EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
 
 # 
 # # LineFollower - target (expected) line position and detection thresholds

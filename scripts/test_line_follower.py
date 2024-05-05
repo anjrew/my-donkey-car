@@ -123,8 +123,8 @@ def main(cfg: Any, image_path: Optional[str] = None):
         # Print the steering and throttle values
         print(
             f"Image size: {frame_resized.shape[1]}x{frame_resized.shape[0]}, "
-            "Steering: {steering:.2f}, "
-            "Throttle: {throttle:.2f}"
+            f"Steering: {steering:.2f}, "
+            f"Throttle: {throttle:.2f}"
         )
 
         # Wait for a key press and close the window
