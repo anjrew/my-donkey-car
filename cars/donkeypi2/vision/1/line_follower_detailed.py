@@ -137,7 +137,7 @@ class LineFollower:
                 confidence,
                 int(self.target_pixel)
             )
-    
+
         steering = self.steering if self.steering is not None else 0.0
         return steering, self.throttle, cam_img
 
@@ -250,7 +250,6 @@ class LineFollower:
             end_y = int(center_y - line_length * np.cos(steering_angle))
             cv2.line(img, (center_x, center_y), (end_x, end_y), (0, 255, 0), 2)
 
-
         # Display the throttle as a bar
         if self.show_throttle:
             bar_width = 10
@@ -258,5 +257,5 @@ class LineFollower:
             bar_x = img.shape[1] - 20
             bar_y = img.shape[0] - 20
             cv2.rectangle(img, (bar_x, bar_y), (bar_x + bar_width, bar_y - bar_height), (0, 0, 255), -1)
-            
+
         return img
