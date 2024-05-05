@@ -636,3 +636,6 @@ INC_PID_P_BTN = "web/w3"            # button to change PID 'P' constant by PID_P
 DEC_PID_P_BTN = "web/w4"            # button to change PID 'P' constant by -PID_P_DELTA
 DEC_PID_I_BTN = "web/w5"            # button to change PID 'I' constant by -PID_I_DELTA
 # 
+
+SHOW_STEERING=True
+SHOW_THROTTLE=True

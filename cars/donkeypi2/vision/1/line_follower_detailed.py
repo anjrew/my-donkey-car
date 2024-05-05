@@ -39,7 +39,8 @@ class LineFollower:
         self.delta_th = cfg.THROTTLE_STEP  # how much to change throttle when off
         self.throttle_max = cfg.THROTTLE_MAX
         self.throttle_min = cfg.THROTTLE_MIN
-
+        self.show_steering = cfg.SHOW_STEERING
+        self.show_throttle = cfg.SHOW_THROTTLE
         self.pid_st = pid
 
     def get_i_color(self, cam_img: np.ndarray) -> tuple[int, float, np.ndarray]:
@@ -69,14 +70,12 @@ class LineFollower:
 
         # make a mask of the colors in our range we are looking for
         center_mask = cv2.inRange(img_hsv, self.color_thr_low, self.color_thr_hi)
-        edge_mask = cv2.inRange(img_hsv, self.edge_color_thr_low, self.edge_color_thr_hi)
-        mask = cv2.bitwise_or(center_mask, edge_mask)
 
         # which index of the range has the highest amount of yellow?
-        hist = np.sum(mask, axis=0)
+        hist = np.sum(center_mask, axis=0)
         max_yellow = np.argmax(hist)
 
-        return int(max_yellow), hist[max_yellow], mask
+        return int(max_yellow), hist[max_yellow], center_mask
 
     def run(self, cam_img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
@@ -241,4 +240,23 @@ class LineFollower:
             )
             y += 10
 
+        # Display the steering as a polar line at the bottom of the image, horizontally centered
+        if self.show_steering:
+            center_x = img.shape[1] // 2
+            center_y = img.shape[0]
+            steering_angle = np.radians(-self.steering)  # type: ignore # Convert steering to radians and invert the sign
+            line_length = 50
+            end_x = int(center_x + line_length * np.sin(steering_angle))
+            end_y = int(center_y - line_length * np.cos(steering_angle))
+            cv2.line(img, (center_x, center_y), (end_x, end_y), (0, 255, 0), 2)
+
+
+        # Display the throttle as a bar
+        if self.show_throttle:
+            bar_width = 10
+            bar_height = int(self.throttle * 100)
+            bar_x = img.shape[1] - 20
+            bar_y = img.shape[0] - 20
+            cv2.rectangle(img, (bar_x, bar_y), (bar_x + bar_width, bar_y - bar_height), (0, 0, 255), -1)
+            
         return img

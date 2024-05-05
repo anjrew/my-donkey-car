@@ -1,6 +1,6 @@
 import numpy as np
 from simple_pid import PID
-from detailed_line_follower import LineFollower
+from line_follower_detailed import LineFollower
 
 
 class TestConfig:
