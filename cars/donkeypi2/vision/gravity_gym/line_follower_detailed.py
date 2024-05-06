@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import Optional
+import math
+from typing import Optional, Tuple
 import cv2
 import numpy as np
 from simple_pid import PID
 import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -90,7 +91,9 @@ class LineFollower:
 
         # Get all the pixels in the slice from the image from the top to the bottom of the
         # scan to the scan height with all horizontal pixels and all color channels
-        scan_line = cam_img[i_slice : i_slice + self.scan_height, :, :]
+        scan_line = cam_img[
+            i_slice : i_slice + self.scan_height, :, :  # flake8: ignore E203
+        ]
 
         # convert to HSV color space
         img_hsv = cv2.cvtColor(scan_line, cv2.COLOR_RGB2HSV)
@@ -111,13 +114,35 @@ class LineFollower:
 
         return int(max_yellow), hist[max_yellow]
 
+    def get_track_angle_deg_from_direction_line(
+        self, direction_line: tuple[int, int, int, int]
+    ) -> float:
+        """
+        Calculate the angle of the direction line with respect to the horizontal axis.
+        input: direction_line(Tuple(x1, y1, x2, y2))
+        output: angle(float)
+        """
+        x1, y1, x2, y2 = direction_line
+        # Calculate the angle in radians
+        angle_radians = math.atan2(y2 - y1, x2 - x1)
+
+        # Convert the angle from radians to degrees
+        angle_degrees = math.degrees(angle_radians)
+
+        # Adjust the angle so that an upward-pointing line has an angle of 0 degrees
+        if angle_degrees < -90:
+            angle_degrees += 180
+        elif angle_degrees > 90:
+            angle_degrees -= 180
+        return angle_degrees
+
     def run_line_detection_on_hsv_mask(
         self, roi_mask: np.ndarray
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[int, int, int, int]:
         """
         Process the HSV feature extracted center_mask to perform edge detection and line detection.
         input: center_mask, a binary mask representing the extracted colors
-        output: edges (edge detection result), line_mask (detected lines)
+        output: direction_line(Tuple(x1, y1, x2, y2))
         """
         # Apply Gaussian blur to reduce noise
         kernal_size = self.canny_params.gaussian_blur_kernal_size
@@ -147,12 +172,32 @@ class LineFollower:
         line_color = (0, 255, 0)
 
         # Draw the detected lines on the line_mask
-        if lines is not None:
-            for line in lines:
-                x1, y1, x2, y2 = line[0]
-                cv2.line(line_mask, (x1, y1), (x2, y2), line_color, 2)  # type: ignore
+        if lines is None:
+            LOGGER.log(logging.DEBUG, "No lines detected")
 
-        return line_mask, lines
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(line_mask, (x1, y1), (x2, y2), line_color, 2)  # type: ignore
+
+        # Extract the parameters of the detected lines
+        lines_parameters = []
+
+        for line in lines:
+            x1, y1, x2, y2 = line.reshape(4)
+            slope, intercept = np.polyfit((x1, x2), (y1, y2), 1)
+            lines_parameters.append((slope, intercept))
+
+        average_slope_intercept = np.average(lines_parameters, axis=0)
+
+        slope, intercept = average_slope_intercept
+        y1 = roi_mask.shape[0]
+        ratio_up_the_screen = 3 / 5
+        y2 = int(y1 * (ratio_up_the_screen))
+        x1 = int((y1 - intercept) / slope)
+        x2 = int((y2 - intercept) / slope)
+        direction_line = (x1, y1, x2, y2)
+
+        return direction_line
 
     def run(self, img: np.ndarray) -> tuple[float, float, Optional[np.ndarray]]:
         """
@@ -174,13 +219,21 @@ class LineFollower:
         max_yellow, confidence = self.get_i_color(roi_mask)
 
         # Run edge detection and line detection on the HSV mask for the scan section
-        line_mask, lines = self.run_line_detection_on_hsv_mask(roi_mask)
+        try:
+            track_direction_line = self.run_line_detection_on_hsv_mask(roi_mask)
+            track_angle = self.get_track_angle_deg_from_direction_line(
+                track_direction_line
+            )
+        except Exception as e:
+            LOGGER.error(f"Error in line detection: {e}")
+            track_direction_line = None
+            track_angle = None
 
         if self.target_pixel is None:
             # Use the first run of get_i_color to set our relationship with the yellow line.
             # You could optionally init the target_pixel with the desired value.
             self.target_pixel = max_yellow
-            logger.info(f"Automatically chosen line position = {self.target_pixel}")
+            LOGGER.info(f"Automatically chosen line position = {self.target_pixel}")
 
         assert self.target_pixel is not None, "No target pixel set."
         assert (
@@ -210,14 +263,20 @@ class LineFollower:
                 if self.throttle > self.throttle_max:
                     self.throttle = self.throttle_max
         else:
-            logger.info(
+            LOGGER.info(
                 f"No line detected: confidence {confidence} < {self.confidence_threshold}"
             )
 
         # show some diagnostics
         if self.overlay_image:
             img = self.overlay_display(
-                img, roi_mask, max_yellow, confidence, int(self.target_pixel)
+                img,
+                roi_mask,
+                max_yellow,
+                confidence,
+                int(self.target_pixel),
+                track_direction_line,
+                int(track_angle) if track_angle is not None else None,
             )
 
         steering = self.steering if self.steering is not None else 0.0
@@ -251,6 +310,8 @@ class LineFollower:
         max_yellow: int,
         confidence: float,
         target_pixel: int,
+        track_direction_line: Optional[Tuple[int, int, int, int]] = None,
+        track_angle_deg: Optional[int] = None,
     ) -> np.ndarray:
         """
         Composite mask on top the original image.
@@ -289,14 +350,15 @@ class LineFollower:
             (255, 0, 0),
             2,
         )
-
         # Prepare the display strings with relevant information
         display_str_col = []
-        display_str_col.append("STEERING: {:.1f}".format(self.steering))
-        display_str_col.append("THROTTLE: {:.2f}%".format(self.throttle * 100))
+        display_str_col.append(f"STEERING: {int(self.steering or 0)}")
+        display_str_col.append("THROTTLE: {:.0f}%".format(self.throttle * 100))
         display_str_col.append("MAX YELLOW: {:d}".format(max_yellow))
         display_str_col.append("CONF: {:.2f}".format(confidence))
         display_str_col.append("TARGET PIXEL: {:d}".format(target_pixel))
+        if track_angle_deg is not None:
+            display_str_col.append(f"TRACK ANG: {int(track_angle_deg)}")
 
         # Set the initial position for displaying the text
         y = 10
