@@ -123,17 +123,18 @@ class LineFollower:
         output: angle(float)
         """
         x1, y1, x2, y2 = direction_line
+
         # Calculate the angle in radians
         angle_radians = math.atan2(y2 - y1, x2 - x1)
 
         # Convert the angle from radians to degrees
         angle_degrees = math.degrees(angle_radians)
 
-        # Adjust the angle so that an upward-pointing line has an angle of 0 degrees
-        if angle_degrees < -90:
-            angle_degrees += 180
-        elif angle_degrees > 90:
-            angle_degrees -= 180
+        # Adjust the angle to match the desired convention
+        angle_degrees = (90 - angle_degrees) % 180
+        if angle_degrees > 90:
+            angle_degrees = -(180 - angle_degrees)
+
         return angle_degrees
 
     def run_line_detection_on_hsv_mask(
@@ -151,7 +152,7 @@ class LineFollower:
 
         blurred = cv2.GaussianBlur(roi_mask, kernal, sigma_standard_deviation)
 
-        # Perform Canny edge detection
+        # Perform Canny edge detecti
         edges = cv2.Canny(
             blurred, self.canny_params.low_threshold, self.canny_params.high_threshold
         )
