@@ -122,6 +122,8 @@ def main(cfg: Any, image_path: Optional[str] = None, folder_path: Optional[str] 
             # Handle key press
             if key == ord('n'):  # Press 'n' to go to the next image
                 image_index = (image_index + 1) % len(image_files)
+            if key == ord('b'):  # Press 'b' to go to the previous image
+                image_index = (image_index - 1) % len(image_files)
             elif key == ord('q'):  # Press 'q' to quit
                 break
 
