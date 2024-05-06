@@ -217,6 +217,7 @@ class LineFollower:
             img,
         )
 
+        # Confidence is the percentage of yellow pixels in the target pixel slice
         max_yellow, confidence = self.get_i_color(roi_mask)
 
         # Run edge detection and line detection on the HSV mask for the scan section
@@ -358,9 +359,9 @@ class LineFollower:
         # Prepare the display strings with relevant information
         display_str_col = []
         display_str_col.append(f"STEERING: {int(self.steering or 0)}")
-        display_str_col.append("THROTTLE: {:.0f}%".format(self.throttle * 100))
+        display_str_col.append("THROTTLE: {:.d}%".format(self.throttle * 100))
         display_str_col.append("MAX YELLOW: {:d}".format(max_yellow))
-        display_str_col.append("CONF: {:.2f}".format(confidence))
+        display_str_col.append("CONF: {:.d}".format(confidence))
         display_str_col.append("TARGET PIXEL: {:d}".format(target_pixel))
         if track_angle_deg is not None:
             display_str_col.append(f"TRACK ANG: {int(track_angle_deg)}")
@@ -376,7 +377,7 @@ class LineFollower:
                 s,
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.25,
+                fontScale=0.24,
                 color=text_bgr,
                 thickness=1,
                 lineType=cv2.LINE_AA,
