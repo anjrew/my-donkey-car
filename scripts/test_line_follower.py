@@ -11,6 +11,7 @@
 
 import argparse
 import importlib
+import os
 from typing import Any, Optional
 from venv import logger
 import cv2
@@ -64,7 +65,7 @@ def load_config_from_file(file_path: str) -> Config:
     return config
 
 
-def main(cfg: Any, image_path: Optional[str] = None):
+def main(cfg: Any, image_path: Optional[str] = None, folder_path: Optional[str] = None):
 
     message = f"Importing CV controller class...{cfg.CV_CONTROLLER_CLASS} from {cfg.CV_CONTROLLER_FILE} file."
     logger.info(message)
@@ -98,34 +99,38 @@ def main(cfg: Any, image_path: Optional[str] = None):
     # Initialize CV controller
     cv_controller = cv_controller_class(pid, cfg)
 
+    if folder_path is not None:
+        # Get a list of image files in the folder
+        image_files = [
+            os.path.join(folder_path, f)
+            for f in os.listdir(folder_path)
+            if f.endswith((".jpg", ".png", ".bmp"))
+        ]
+        image_files.sort()  # Sort the files in alphabetical order
+
+        # Initialize the index to the first image file
+        image_index = 0
+
+        while True:
+            # Load the current image file
+            image_path = image_files[image_index]
+            process_file_from_path(cfg, image_path, cv_controller)
+
+            # Wait for a key press
+            key = cv2.waitKey(0)
+
+            # Handle key press
+            if key == ord('n'):  # Press 'n' to go to the next image
+                image_index = (image_index + 1) % len(image_files)
+            elif key == ord('q'):  # Press 'q' to quit
+                break
+
+        # Release the video capture and close windows
+        cv2.destroyAllWindows()
+
     if image_path is not None:
         # Read the image from the specified path
-        frame = cv2.imread(image_path)
-        if frame is None:
-            raise ValueError(f"Could not read image from path: {image_path}")
-
-        # Resize the frame to the specified dimensions
-        frame_resized = cv2.resize(frame, (cfg.IMAGE_W, cfg.IMAGE_H))
-
-        # Convert the frame from BGR to RGB color space
-        frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
-
-        # Run the CV controller on the frame
-        steering, throttle, frame_overlay = cv_controller.run(frame_rgb)
-
-        # Display the frame with overlay
-        if frame_overlay is not None:
-            frame_overlay = cv2.cvtColor(frame_overlay, cv2.COLOR_RGB2BGR)
-            cv2.imshow("CV Controller", frame_overlay)
-        else:
-            cv2.imshow("CV Controller", frame_resized)
-
-        # Print the steering and throttle values
-        print(
-            f"Image size: {frame_resized.shape[1]}x{frame_resized.shape[0]}, "
-            f"Steering: {steering:.2f}, "
-            f"Throttle: {throttle:.2f}"
-        )
+        process_file_from_path(cfg, image_path, cv_controller)
 
         # Wait for a key press and close the window
         cv2.waitKey(0)
@@ -175,6 +180,35 @@ def main(cfg: Any, image_path: Optional[str] = None):
         cv2.destroyAllWindows()
 
 
+def process_file_from_path(cfg, image_path: str, cv_controller):
+    frame = cv2.imread(image_path)
+    if frame is None:
+        raise ValueError(f"Could not read image from path: {image_path}")
+
+        # Resize the frame to the specified dimensions
+    frame_resized = cv2.resize(frame, (cfg.IMAGE_W, cfg.IMAGE_H))
+
+    # Convert the frame from BGR to RGB color space
+    frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
+
+    # Run the CV controller on the frame
+    steering, throttle, frame_overlay = cv_controller.run(frame_rgb)
+
+    # Display the frame with overlay
+    if frame_overlay is not None:
+        frame_overlay = cv2.cvtColor(frame_overlay, cv2.COLOR_RGB2BGR)
+        cv2.imshow("CV Controller", frame_overlay)
+    else:
+        cv2.imshow("CV Controller", frame_resized)
+
+        # Print the steering and throttle values
+    print(
+        f"Image size: {frame_resized.shape[1]}x{frame_resized.shape[0]}, "
+        f"Steering: {steering:.2f}, "
+        f"Throttle: {throttle:.2f}"
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='CV Controller Test')
     parser.add_argument(
@@ -195,6 +229,11 @@ if __name__ == "__main__":
         type=str,
         help='Optional image file path. If not specified, the camera will be used.',
     )
+    parser.add_argument(
+        '--folder-path',
+        type=str,
+        help='Optional folder path containing image files. If specified, the script will test on all images in the folder.',
+    )
 
     args = parser.parse_args()
 
@@ -206,4 +245,4 @@ if __name__ == "__main__":
     if args.follower_class is not None:
         cfg.CV_CONTROLLER_CLASS = args.follower_class
 
-    main(cfg, args.image_path)
+    main(cfg, args.image_path, args.folder_path)

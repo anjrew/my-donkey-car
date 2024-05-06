@@ -68,6 +68,7 @@ class LineFollower:
         self.throttle_min = cfg.THROTTLE_MIN
         self.show_steering = cfg.SHOW_STEERING
         self.show_throttle = cfg.SHOW_THROTTLE
+        self.track_direction_percentage = cfg.TRACK_DIRECTION_PERCENTAGE
         self.canny_params = CannyEdgeDetectionParams(
             cfg.CANNY_LOW_THRESHOLD,
             cfg.CANNY_HIGH_THRESHOLD,
@@ -251,6 +252,9 @@ class LineFollower:
             # get the new steering value as it chases the ideal
             self.steering = self.pid_st(int(max_yellow))
 
+            if self.track_direction_percentage and track_angle:
+                self.steering += track_angle * self.track_direction_percentage
+
             # slow down linearly when away from ideal, and speed up when close
             if abs(max_yellow - self.target_pixel) > self.target_threshold:
                 # we will be turning, so slow down
@@ -359,9 +363,9 @@ class LineFollower:
         # Prepare the display strings with relevant information
         display_str_col = []
         display_str_col.append(f"STEERING: {int(self.steering or 0)}")
-        display_str_col.append("THROTTLE: {:.d}%".format(self.throttle * 100))
-        display_str_col.append("MAX YELLOW: {:d}".format(max_yellow))
-        display_str_col.append("CONF: {:.d}".format(confidence))
+        display_str_col.append("THROTTLE: {:.0f}%".format(self.throttle * 100))
+        display_str_col.append("MAX YELLOW: {:0f}".format(max_yellow))
+        display_str_col.append("CONF: {:.0f}".format(confidence))
         display_str_col.append("TARGET PIXEL: {:d}".format(target_pixel))
         if track_angle_deg is not None:
             display_str_col.append(f"TRACK ANG: {int(track_angle_deg)}")
