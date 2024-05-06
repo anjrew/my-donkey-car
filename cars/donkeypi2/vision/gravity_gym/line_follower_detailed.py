@@ -320,7 +320,7 @@ class LineFollower:
         show some values we are using for control
         """
 
-        # Expand the dimensions of the mask to match the image shape
+        # Expand the dimensions of the mask to three color channels to match the image shape
         mask_exp = np.stack((roi_mask,) * 3, axis=-1)
 
         # Define the region of interest (ROI) where the line is being detected

@@ -659,3 +659,6 @@ HOUGH_THETA = 0.04
 HOUGH_THRESHOLD = 1
 HOUGH_MIN_LINE_LENGTH = 40
 HOUGH_MAX_LINE_GAP = 17
+
+# The percentage of the track angle that will get added to the base steeing value
+TRACK_DIRECTION_PERCENTAGE = 0.5  # percentage as a decimal
