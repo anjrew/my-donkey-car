@@ -307,7 +307,7 @@ class LineFollower:
     def overlay_display(
         self,
         cam_img: np.ndarray,
-        mask: np.ndarray,
+        roi_mask: np.ndarray,
         max_yellow: int,
         confidence: float,
         target_pixel: int,
@@ -320,7 +320,7 @@ class LineFollower:
         """
 
         # Expand the dimensions of the mask to match the image shape
-        mask_exp = np.stack((mask,) * 3, axis=-1)
+        mask_exp = np.stack((roi_mask,) * 3, axis=-1)
 
         # Define the region of interest (ROI) where the line is being detected
         i_slice = self.scan_y
@@ -409,7 +409,10 @@ class LineFollower:
 
         # Draw the track direction line if detected
         if track_direction_line is not None:
+            y_offset = i_slice
             x1, y1, x2, y2 = track_direction_line
+            y1 += y_offset
+            y2 += y_offset
             cv2.line(img, (x1, y1), (x2, y2), track_direction_rgb, 2)  # Yellow line
 
         return img
