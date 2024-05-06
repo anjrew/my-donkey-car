@@ -4,8 +4,8 @@
 # Example use in command line from the root directory:
 #
 #    python ./scripts/test_line_follower.py \
-#    --follower-class-file ./cars/donkeypi2/vision/1/detailed_line_follower.py \
-#    --config ./cars/donkeypi2/vision/1/my-config.next.py \
+#    --follower-class-file ./cars/donkeypi2/vision/gravity_gym/line_follower_detailed.py \
+#    --config ./cars/donkeypi2/vision/gravity_gym/my-config.next.py \
 #    --image-path ./vision/donkeypi2_test_6.png
 ############################################
 
@@ -190,7 +190,11 @@ if __name__ == "__main__":
         help='CV controller class name',
     )
     parser.add_argument('--config', type=str, help='Configuration file path')
-    parser.add_argument('--image-path', type=str, help='Optional image file path. If not specified, the camera will be used.')
+    parser.add_argument(
+        '--image-path',
+        type=str,
+        help='Optional image file path. If not specified, the camera will be used.',
+    )
 
     args = parser.parse_args()
 

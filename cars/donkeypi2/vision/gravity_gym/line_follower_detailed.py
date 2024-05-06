@@ -330,15 +330,19 @@ class LineFollower:
         # Overlay the mask on the ROI of the image
         img[i_slice : i_slice + self.scan_height, :, :] = mask_exp
 
-        target_pixel_color: tuple = (0, 255, 255)  # Yellow
-        max_yellow_color: tuple = (0, 0, 255)  # Red
-        text_color: tuple = (255, 0, 255)  # Neon Pink
+        neon_pink_rgb = (255, 0, 255)
+        target_pixel_rgb: tuple = (0, 255, 255)  # Turqiose
+        max_yellow_hori_rgb: tuple = (0, 0, 255)  # Blue
+        text_bgr: tuple = (255, 0, 255)  # Neon Pink
+        track_direction_rgb = (0, 255, 0)  # Green
+        steering_line_rgb = neon_pink_rgb  # Neon Pink
+        threshold_region_rgb = (255, 0, 0)  # Red
 
         # Draw a marker or circle at the target pixel location
-        self.draw_target_pixel(img, target_pixel, i_slice, color=target_pixel_color)
+        self.draw_target_pixel(img, target_pixel, i_slice, color=target_pixel_rgb)
 
         # Draw a marker or circle at the max_yellow position
-        self.draw_target_pixel(img, int(max_yellow), i_slice, color=max_yellow_color)
+        self.draw_target_pixel(img, int(max_yellow), i_slice, color=max_yellow_hori_rgb)
 
         # Draw the target pixel threshold region
         left_threshold = target_pixel - self.target_threshold
@@ -347,7 +351,7 @@ class LineFollower:
             img,
             (left_threshold, i_slice),
             (right_threshold, i_slice + self.scan_height),
-            (255, 0, 0),
+            threshold_region_rgb,
             2,
         )
         # Prepare the display strings with relevant information
@@ -372,7 +376,7 @@ class LineFollower:
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.25,
-                color=text_color,
+                color=text_bgr,
                 thickness=1,
                 lineType=cv2.LINE_AA,
             )
@@ -386,7 +390,7 @@ class LineFollower:
             line_length = 50
             end_x = int(center_x + line_length * np.sin(steering_angle))
             end_y = int(center_y - line_length * np.cos(steering_angle))
-            cv2.line(img, (center_x, center_y), (end_x, end_y), (0, 255, 0), 2)
+            cv2.line(img, (center_x, center_y), (end_x, end_y), steering_line_rgb, 2)
 
         # Display the throttle as a bar
         if self.show_throttle:
@@ -401,5 +405,10 @@ class LineFollower:
                 (0, 0, 255),
                 -1,
             )
+
+        # Draw the track direction line if detected
+        if track_direction_line is not None:
+            x1, y1, x2, y2 = track_direction_line
+            cv2.line(img, (x1, y1), (x2, y2), track_direction_rgb, 2)  # Yellow line
 
         return img
