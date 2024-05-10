@@ -121,9 +121,9 @@ def main(cfg: Any, image_path: Optional[str] = None, folder_path: Optional[str] 
 
             # Handle key press
             if key == ord('n'):  # Press 'n' to go to the next image
-                image_index = (image_index + 1) % len(image_files)
+                image_index = image_index + 1
             if key == ord('b'):  # Press 'b' to go to the previous image
-                image_index = (image_index - 1) % len(image_files)
+                image_index = image_index - 1
             elif key == ord('q'):  # Press 'q' to quit
                 break
 
@@ -196,15 +196,19 @@ def process_file_from_path(cfg, image_path: str, cv_controller):
     # Run the CV controller on the frame
     steering, throttle, frame_overlay = cv_controller.run(frame_rgb)
 
+    title = "CV Controller"
     # Display the frame with overlay
     if frame_overlay is not None:
         frame_overlay = cv2.cvtColor(frame_overlay, cv2.COLOR_RGB2BGR)
-        cv2.imshow("CV Controller", frame_overlay)
+        cv2.imshow(title, frame_overlay)
     else:
-        cv2.imshow("CV Controller", frame_resized)
+        cv2.imshow(title, frame_resized)
 
-        # Print the steering and throttle values
+    # Print the steering and throttle values
+    path_parts = image_path.split('/')
+    file_name = path_parts[len(path_parts) - 1]
     print(
+        f"File : { file_name} "
         f"Image size: {frame_resized.shape[1]}x{frame_resized.shape[0]}, "
         f"Steering: {steering:.2f}, "
         f"Throttle: {throttle:.2f}"
