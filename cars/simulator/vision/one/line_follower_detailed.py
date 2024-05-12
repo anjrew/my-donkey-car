@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 from simple_pid import PID
 import logging
+import warnings
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -186,8 +188,8 @@ class LineFollower:
         # Extract the parameters of the detected lines
         lines_parameters = []
 
-        for line in lines:
-            x1, y1, x2, y2 = line.reshape(4)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             slope, intercept = np.polyfit((x1, x2), (y1, y2), 1)
             lines_parameters.append((slope, intercept))
 

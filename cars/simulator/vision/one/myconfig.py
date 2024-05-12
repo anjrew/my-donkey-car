@@ -625,15 +625,26 @@ THROTTLE_STEP = 0.02  # how much to change throttle when off the line
 
 # # These three PID constants are crucial to the way the car drives. If you are tuning them
 # # start by setting the others zero and focus on first Kp, then Kd, and then Ki.
-PID_P = -0.315000  # proportional mult for PID path follower
-PID_I = 0.000  # integral mult for PID path follower
-PID_D = -0.06  # differential mult for PID path follower
+
+# Best values for the PID constants
+# PID_P = -0.424000  # proportional mult for PID path follower
+# PID_I = -0.000  # integral mult for PID path follower
+# PID_D = -0.312000  # differential mult for PID path follower
+#
+PID_P = -0.047100  # proportional mult for PID path follower
+PID_I = -0.000  # integral mult for PID path follower
+PID_D = -0.003500  # differential mult for PID path follower
+#
 # PID_P = -10.0  # proportional mult for PID path follower
 # PID_I = 0.000  # integral mult for PID path follower
 # PID_D = -5
 #
-PID_P_DELTA = 0.001  # amount the inc/dec function will change the P value
-PID_D_DELTA = 0.001  # amount the inc/dec function will change the D value
+# PID_P = -0.03  # proportional mult for PID path follower
+# PID_I = 0.001  # integral mult for PID path follower
+# PID_D = -0.02  # differential mult for PID path follower
+#
+PID_P_DELTA = 0.0001  # amount the inc/dec function will change the P value
+PID_D_DELTA = 0.0001  # amount the inc/dec function will change the D value
 PID_I_DELTA = 0.01  # amount the inc/dec function will change the I value
 #
 OVERLAY_IMAGE = True  # True to draw computer vision overlay on camera image in web ui
@@ -668,4 +679,4 @@ HOUGH_MIN_LINE_LENGTH = 40
 HOUGH_MAX_LINE_GAP = 17
 
 # The percentage of the track angle that will get added to the base steeing value
-TRACK_DIRECTION_PERCENTAGE = 1  # percentage as a decimal
+TRACK_DIRECTION_PERCENTAGE = 0  # percentage as a decimal
