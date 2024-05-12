@@ -38,8 +38,8 @@
 # # CAMERA configuration
 # #
 CAMERA_TYPE = "PICAM"  # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)
-IMAGE_W = 320
-IMAGE_H = 240
+IMAGE_W = 160
+IMAGE_H = 120
 # IMAGE_DEPTH = 3         # default RGB=3, make 1 for mono
 # CAMERA_FRAMERATE = DRIVE_LOOP_HZ
 # CAMERA_VFLIP = False
@@ -499,11 +499,16 @@ PWM_STEERING_THROTTLE = {
 # # then extract that and modify DONKEY_SIM_PATH.
 DONKEY_GYM = True
 DONKEY_SIM_PATH = "/Users/earyzhe/Desktop/donkey_car/DonkeySimMac/donkey_sim.app/Contents/MacOS/donkey_sim"  # "/home/tkramer/projects/sdsandbox/sdsim/build/DonkeySimLinux/donkey_sim.x86_64" when racing on virtual-race-league use "remote", or user "remote" when you want to start the sim manually first.
-DONKEY_GYM_ENV_NAME = "donkey-generated-track-v0"  # ("donkey-generated-track-v0"|"donkey-generated-roads-v0"|"donkey-warehouse-v0"|"donkey-avc-sparkfun-v0")
-# GYM_CONF = { "body_style" : "donkey", "body_rgb" : (128, 128, 128), "car_name" : "car", "font_size" : 100} # body style(donkey|bare|car01) body rgb 0-255
-# GYM_CONF["racer_name"] = "Your Name"
-# GYM_CONF["country"] = "Place"
-# GYM_CONF["bio"] = "I race robots."
+DONKEY_GYM_ENV_NAME = "donkey-generated-roads-v0"  # ("donkey-generated-track-v0"|"donkey-generated-roads-v0"|"donkey-warehouse-v0"|"donkey-avc-sparkfun-v0")
+GYM_CONF = {
+    "body_style": "donkey",
+    "body_rgb": (128, 128, 128),
+    "car_name": "car",
+    "font_size": 100,
+}  # body style(donkey|bare|car01) body rgb 0-255
+GYM_CONF["racer_name"] = "AJ"
+GYM_CONF["country"] = "Chex"
+GYM_CONF["bio"] = "I race robots."
 #
 # SIM_HOST = "127.0.0.1"              # when racing on virtual-race-league use host "trainmydonkey.com"
 # SIM_ARTIFICIAL_LATENCY = 0          # this is the millisecond latency in controls. Can use useful in emulating the delay when useing a remote server. values of 100 to 400 probably reasonable.
@@ -561,25 +566,26 @@ DONKEY_GYM_ENV_NAME = "donkey-generated-track-v0"  # ("donkey-generated-track-v0
 # #
 # # configure which part is used as the autopilot - change to use your own autopilot
 CV_CONTROLLER_MODULE = "line_follower_detailed"
+# CV_CONTROLLER_MODULE = "donkeycar.parts.line_follower"
 CV_CONTROLLER_CLASS = "LineFollower"
 CV_CONTROLLER_INPUTS = ['cam/image_array']
 CV_CONTROLLER_OUTPUTS = ['pilot/steering', 'pilot/throttle', 'cv/image_array']
 CV_CONTROLLER_CONDITION = "run_pilot"
 #
 # # LineFollower - line color and detection area
-SCAN_Y = 80  # num pixels from the top to start horiz scan
-SCAN_HEIGHT = 100  # num pixels high to grab from horiz scan
+SCAN_Y = 50  # num pixels from the top to start horiz scan
+SCAN_HEIGHT = 130  # num pixels high to grab from horiz scan
 
 ## THE DRIVERY VALUES
 COLOR_THRESHOLD_LOW = (
+    10,
     20,
-    102,
-    131,
+    190,
 )  # HSV dark yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
 COLOR_THRESHOLD_HIGH = (
-    47,
-    255,
-    255,
+    50,
+    150,
+    220,
 )  # HSV light yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
 
 ## FOR TESTING AT PIAS:
@@ -599,12 +605,10 @@ EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
 TARGET_PIXEL = IMAGE_W // 2  # If None, then detect the position yellow line at startup;
 # so this assumes you have positioned the car prior to starting.
 # Alternatively set this to IMAGE_W / 2 to follow middle line
-TARGET_THRESHOLD = (
-    10  # number of pixels from TARGET_PIXEL that vehicle must be pointing
-)
+TARGET_THRESHOLD = 5  # number of pixels from TARGET_PIXEL that vehicle must be pointing
 # before a steering change will be made; this prevents algorithm
 # from being too twitchy when it is on or near the line.
-CONFIDENCE_THRESHOLD = 0.0015  # The fraction of total sampled pixels that must be yellow in the sample slice.
+CONFIDENCE_THRESHOLD = 0.0010  # The fraction of total sampled pixels that must be yellow in the sample slice.
 # The sample slice will have SCAN_HEIGHT pixels and the total number
 # of sampled pixels is IMAGE_W x SCAN_HEIGHT, so if you want to make sure
 # that all the pixels in the sample slice are yellow, then the confidence
@@ -614,20 +618,23 @@ CONFIDENCE_THRESHOLD = 0.0015  # The fraction of total sampled pixels that must 
 # may want to lower the threshold.
 
 # # LineFollower - throttle step controller; increase throttle on straights, descrease on turns
-THROTTLE_MAX = 1  # maximum throttle value the controller will produce
-THROTTLE_MIN = 0.8  # minimum throttle value the controller will produce
+THROTTLE_MAX = 0.2  # maximum throttle value the controller will produce
+THROTTLE_MIN = 0.2  # minimum throttle value the controller will produce
 THROTTLE_INITIAL = THROTTLE_MIN  # initial throttle value
 THROTTLE_STEP = 0.02  # how much to change throttle when off the line
 
 # # These three PID constants are crucial to the way the car drives. If you are tuning them
 # # start by setting the others zero and focus on first Kp, then Kd, and then Ki.
-PID_P = -0.0099  # proportional mult for PID path follower
+PID_P = -0.315000  # proportional mult for PID path follower
 PID_I = 0.000  # integral mult for PID path follower
-PID_D = -0.0004  # differential mult for PID path follower
+PID_D = -0.06  # differential mult for PID path follower
+# PID_P = -10.0  # proportional mult for PID path follower
+# PID_I = 0.000  # integral mult for PID path follower
+# PID_D = -5
 #
-PID_P_DELTA = 0.005  # amount the inc/dec function will change the P value
-PID_D_DELTA = 0.00005  # amount the inc/dec function will change the D value
-PID_I_DELTA = 0.0001  # amount the inc/dec function will change the I value
+PID_P_DELTA = 0.001  # amount the inc/dec function will change the P value
+PID_D_DELTA = 0.001  # amount the inc/dec function will change the D value
+PID_I_DELTA = 0.01  # amount the inc/dec function will change the I value
 #
 OVERLAY_IMAGE = True  # True to draw computer vision overlay on camera image in web ui
 # NOTE: this does not affect what is saved to the data
@@ -661,4 +668,4 @@ HOUGH_MIN_LINE_LENGTH = 40
 HOUGH_MAX_LINE_GAP = 17
 
 # The percentage of the track angle that will get added to the base steeing value
-TRACK_DIRECTION_PERCENTAGE = 0.4  # percentage as a decimal
+TRACK_DIRECTION_PERCENTAGE = 1  # percentage as a decimal

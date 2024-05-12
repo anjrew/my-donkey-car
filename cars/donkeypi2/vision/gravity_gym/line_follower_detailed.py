@@ -253,7 +253,10 @@ class LineFollower:
             self.steering = self.pid_st(int(max_yellow))
 
             if self.track_direction_percentage and track_angle:
-                self.steering += track_angle * self.track_direction_percentage
+                self.steering = self.steering + (
+                    track_angle * self.track_direction_percentage
+                )
+            print(f"Steering: {self.steering}")
 
             # slow down linearly when away from ideal, and speed up when close
             if abs(max_yellow - self.target_pixel) > self.target_threshold:

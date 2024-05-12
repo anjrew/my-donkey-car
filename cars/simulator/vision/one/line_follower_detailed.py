@@ -178,6 +178,8 @@ class LineFollower:
             LOGGER.log(logging.DEBUG, "No lines detected")
 
         for line in lines:
+            if len(line) != 1:
+                continue
             x1, y1, x2, y2 = line[0]
             cv2.line(line_mask, (x1, y1), (x2, y2), line_color, 2)  # type: ignore
 
@@ -221,16 +223,18 @@ class LineFollower:
         # Confidence is the percentage of yellow pixels in the target pixel slice
         max_yellow, confidence = self.get_i_color(roi_mask)
 
+        track_direction_line = None
+        track_angle = None
         # Run edge detection and line detection on the HSV mask for the scan section
         try:
             track_direction_line = self.run_line_detection_on_hsv_mask(roi_mask)
+
             track_angle = self.get_track_angle_deg_from_direction_line(
                 track_direction_line
             )
+
         except Exception as e:
-            LOGGER.error(f"Error in line detection: {e}")
-            track_direction_line = None
-            track_angle = None
+            LOGGER.debug(f"Error in line detection: {e}")
 
         if self.target_pixel is None:
             # Use the first run of get_i_color to set our relationship with the yellow line.
@@ -251,8 +255,11 @@ class LineFollower:
             # invoke the controller with the current yellow line position
             # get the new steering value as it chases the ideal
             self.steering = self.pid_st(int(max_yellow))
-
-            if self.track_direction_percentage and track_angle:
+            if (
+                self.track_direction_percentage
+                and int(self.track_direction_percentage) != 0
+                and track_angle is not None
+            ):
                 self.steering += track_angle * self.track_direction_percentage
 
             # slow down linearly when away from ideal, and speed up when close
@@ -284,9 +291,8 @@ class LineFollower:
                 track_direction_line,
                 int(track_angle) if track_angle is not None else None,
             )
-
-        steering = self.steering if self.steering is not None else 0.0
-        return steering, self.throttle, img
+        self.steering = self.steering if self.steering is not None else 0.0
+        return self.steering, self.throttle, img
 
     def draw_target_pixel(
         self,
@@ -381,7 +387,7 @@ class LineFollower:
                 s,
                 org=(x, y),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=0.24,
+                fontScale=0.3,
                 color=text_bgr,
                 thickness=1,
                 lineType=cv2.LINE_AA,
@@ -412,12 +418,15 @@ class LineFollower:
                 -1,
             )
 
-        # Draw the track direction line if detected
-        if track_direction_line is not None:
-            y_offset = i_slice
-            x1, y1, x2, y2 = track_direction_line
-            y1 += y_offset
-            y2 += y_offset
-            cv2.line(img, (x1, y1), (x2, y2), track_direction_rgb, 2)  # Yellow line
+        try:
+            # Draw the track direction line if detected
+            if track_direction_line is not None:
+                y_offset = i_slice
+                x1, y1, x2, y2 = track_direction_line
+                y1 += y_offset
+                y2 += y_offset
+                cv2.line(img, (x1, y1), (x2, y2), track_direction_rgb, 2)  # Yellow line
+        except Exception as e:
+            LOGGER.error(f"Error in drawing track direction line: {e}")
 
         return img
