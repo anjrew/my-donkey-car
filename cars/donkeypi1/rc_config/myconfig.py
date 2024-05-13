@@ -1,10 +1,4 @@
 # flake8: noqa
-
-###########################################################################
-# Created on the 29.4.2024 at the gravity gym at teh drivery
-
-# Dialed in ok but need more PID tuning
-###########################################################################
 # """
 # My CAR CONFIG
 
@@ -37,9 +31,9 @@
 # #
 # # CAMERA configuration
 # #
-CAMERA_TYPE = "PICAM"  # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)
-IMAGE_W = 160
-IMAGE_H = 120
+# CAMERA_TYPE = "PICAM"   # (PICAM|WEBCAM|CVCAM|CSIC|V4L|D435|MOCK|IMAGE_LIST)
+# IMAGE_W = 320
+# IMAGE_H = 240
 # IMAGE_DEPTH = 3         # default RGB=3, make 1 for mono
 # CAMERA_FRAMERATE = DRIVE_LOOP_HZ
 # CAMERA_VFLIP = False
@@ -100,7 +94,7 @@ IMAGE_H = 120
 # # (deprecated) "PIGPIO_PWM" uses Raspberrys internal PWM
 # # (deprecated) "I2C_SERVO" uses PCA9685 servo controller to control a steering servo and an ESC, as in a standard RC car
 # #
-DRIVE_TRAIN_TYPE = "PWM_STEERING_THROTTLE"
+# DRIVE_TRAIN_TYPE = "PWM_STEERING_THROTTLE"
 #
 # #
 # # PWM_STEERING_THROTTLE drivetrain configuration
@@ -116,11 +110,11 @@ PWM_STEERING_THROTTLE = {
     "PWM_THROTTLE_PIN": "PCA9685.1:40.0",  # PWM output pin for ESC
     "PWM_THROTTLE_SCALE": 1.0,  # used to compensate for PWM frequence differences from 60hz; NOT for increasing/limiting speed
     "PWM_THROTTLE_INVERTED": False,  # True if hardware requires an inverted PWM pulse
-    "STEERING_LEFT_PWM": 455,  # pwm value for full left steering
-    "STEERING_RIGHT_PWM": 264,  # pwm value for full right steering
-    "THROTTLE_FORWARD_PWM": 383,  # pwm value for max forward throttle
-    "THROTTLE_STOPPED_PWM": 350,  # pwm value for no movement
-    "THROTTLE_REVERSE_PWM": 0,  # pwm value for max reverse throttle
+    "STEERING_LEFT_PWM": 550,  # pwm value for full left steering
+    "STEERING_RIGHT_PWM": 250,  # pwm value for full right steering
+    "THROTTLE_FORWARD_PWM": 410,  # pwm value for max forward throttle
+    "THROTTLE_STOPPED_PWM": 400,  # pwm value for no movement
+    "THROTTLE_REVERSE_PWM": 379,  # pwm value for max reverse throttle
 }
 #
 # #
@@ -223,7 +217,7 @@ PWM_STEERING_THROTTLE = {
 #     "BWD_PIN": "RPI_GPIO.BOARD.16",   # ttl pin, high enables motor reverse
 #     "DUTY_PIN": "RPI_GPIO.BOARD.35",  # provides duty cycle to motor
 #     "PWM_STEERING_PIN": "RPI_GPIO.BOARD.33",   # provides servo pulse to steering servo
-#     "PWM_STEERING_SCALE": 1.0,        # used to compensate for PWM frequency differents from 60hz; NOT for adjusting steering range
+#     "PWM_STEERING_SCALE": 1.0,        # used to compensate for PWM frequency different from 60hz; NOT for adjusting steering range
 #     "PWM_STEERING_INVERTED": False,   # True if hardware requires an inverted PWM pulse
 #     "STEERING_LEFT_PWM": 460,         # pwm value for full left steering (use `donkey calibrate` to measure value for your car)
 #     "STEERING_RIGHT_PWM": 290,        # pwm value for full right steering (use `donkey calibrate` to measure value for your car)
@@ -371,9 +365,9 @@ PWM_STEERING_THROTTLE = {
 # #JOYSTICK
 # USE_JOYSTICK_AS_DEFAULT = False      #when starting the manage.py, when True, will not require a --js option to use the joystick
 # JOYSTICK_MAX_THROTTLE = 0.5         #this scalar is multiplied with the -1 to 1 throttle value to limit the maximum throttle. This can help if you drop the controller or just don't need the full speed available.
-# JOYSTICK_STEERING_SCALE = 1.0       #some people want a steering that is less sensitve. This scalar is multiplied with the steering -1 to 1. It can be negative to reverse dir.
+# JOYSTICK_STEERING_SCALE = 1.0       #some people want a steering that is less sensitive. This scalar is multiplied with the steering -1 to 1. It can be negative to reverse dir.
 # AUTO_RECORD_ON_THROTTLE = False     #if true, we will record whenever throttle is not zero. if false, you must manually toggle recording with some other trigger. Usually circle button on joystick.
-# CONTROLLER_TYPE = 'xbox'            #(ps3|ps4|xbox|pigpio_rc|nimbus|wiiu|F710|rc3|MM1|custom) custom will run the my_joystick.py controller written by the `donkey createjs` command
+CONTROLLER_TYPE = 'wl_cars_rc_controller'  # (ps3|ps4|xbox|pigpio_rc|nimbus|wiiu|F710|rc3|MM1|custom|wl_cars_rc_controller) custom will run the my_joystick.py controller written by the `donkey createjs` command
 # USE_NETWORKED_JS = False            #should we listen for remote joystick control over the network?
 # NETWORK_JS_SERVER_IP = None         #when listening for network joystick control, which ip is serving this information
 # JOYSTICK_DEADZONE = 0.01            # when non zero, this is the smallest throttle before recording triggered.
@@ -386,21 +380,23 @@ PWM_STEERING_THROTTLE = {
 # HAVE_SOMBRERO = False           #set to true when using the sombrero hat from the Donkeycar store. This will enable pwm on the hat.
 #
 # #PIGPIO RC control
-# STEERING_RC_GPIO = 26
-# THROTTLE_RC_GPIO = 20
+STEERING_RC_GPIO = 26  # PIN 37
+THROTTLE_RC_GPIO = 20  # PIN 38
 # DATA_WIPER_RC_GPIO = 19
-# PIGPIO_STEERING_MID = 1500         # Adjust this value if your car cannot run in a straight line
-# PIGPIO_MAX_FORWARD = 2000          # Max throttle to go fowrward. The bigger the faster
+PIGPIO_STEERING_MID = (
+    1000  # Adjust this value if your car cannot run in a straight line
+)
+# PIGPIO_MAX_FORWARD = 2500          # Max throttle to go forward. The bigger the faster
 # PIGPIO_STOPPED_PWM = 1500
 # PIGPIO_MAX_REVERSE = 1000          # Max throttle to go reverse. The smaller the faster
-# PIGPIO_SHOW_STEERING_VALUE = False
-# PIGPIO_INVERT = False
+PIGPIO_SHOW_STEERING_VALUE = False
+PIGPIO_INVERT = False
 # PIGPIO_JITTER = 0.025   # threshold below which no signal is reported
 #
 #
 # # ROBOHAT MM1 controller
 # MM1_STEERING_MID = 1500         # Adjust this value if your car cannot run in a straight line
-# MM1_MAX_FORWARD = 2000          # Max throttle to go fowrward. The bigger the faster
+# MM1_MAX_FORWARD = 2000          # Max throttle to go forward. The bigger the faster
 # MM1_STOPPED_PWM = 1500
 # MM1_MAX_REVERSE = 1000          # Max throttle to go reverse. The smaller the faster
 # MM1_SHOW_STEERING_VALUE = False
@@ -497,18 +493,13 @@ PWM_STEERING_THROTTLE = {
 # # This enables that, and sets the path to the simualator and the environment.
 # # You will want to download the simulator binary from: https://github.com/tawnkramer/donkey_gym/releases/download/v18.9/DonkeySimLinux.zip
 # # then extract that and modify DONKEY_SIM_PATH.
-DONKEY_GYM = True
-DONKEY_SIM_PATH = "/Users/earyzhe/Desktop/donkey_car/DonkeySimMac/donkey_sim.app/Contents/MacOS/donkey_sim"  # "/home/tkramer/projects/sdsandbox/sdsim/build/DonkeySimLinux/donkey_sim.x86_64" when racing on virtual-race-league use "remote", or user "remote" when you want to start the sim manually first.
-DONKEY_GYM_ENV_NAME = "donkey-generated-roads-v0"  # ("donkey-generated-track-v0"|"donkey-generated-roads-v0"|"donkey-warehouse-v0"|"donkey-avc-sparkfun-v0")
-GYM_CONF = {
-    "body_style": "donkey",
-    "body_rgb": (128, 128, 128),
-    "car_name": "car",
-    "font_size": 100,
-}  # body style(donkey|bare|car01) body rgb 0-255
-GYM_CONF["racer_name"] = "AJ"
-GYM_CONF["country"] = "Chex"
-GYM_CONF["bio"] = "I race robots."
+# DONKEY_GYM = False
+# DONKEY_SIM_PATH = "path to sim" #"/home/tkramer/projects/sdsandbox/sdsim/build/DonkeySimLinux/donkey_sim.x86_64" when racing on virtual-race-league use "remote", or user "remote" when you want to start the sim manually first.
+# DONKEY_GYM_ENV_NAME = "donkey-generated-track-v0" # ("donkey-generated-track-v0"|"donkey-generated-roads-v0"|"donkey-warehouse-v0"|"donkey-avc-sparkfun-v0")
+# GYM_CONF = { "body_style" : "donkey", "body_rgb" : (128, 128, 128), "car_name" : "car", "font_size" : 100} # body style(donkey|bare|car01) body rgb 0-255
+# GYM_CONF["racer_name"] = "Your Name"
+# GYM_CONF["country"] = "Place"
+# GYM_CONF["bio"] = "I race robots."
 #
 # SIM_HOST = "127.0.0.1"              # when racing on virtual-race-league use host "trainmydonkey.com"
 # SIM_ARTIFICIAL_LATENCY = 0          # this is the millisecond latency in controls. Can use useful in emulating the delay when useing a remote server. values of 100 to 400 probably reasonable.
@@ -565,50 +556,37 @@ GYM_CONF["bio"] = "I race robots."
 # # computer vision template
 # #
 # # configure which part is used as the autopilot - change to use your own autopilot
-CV_CONTROLLER_MODULE = "line_follower_detailed"
-# CV_CONTROLLER_MODULE = "donkeycar.parts.line_follower"
+CV_CONTROLLER_MODULE = "donkeycar.parts.line_follower"
 CV_CONTROLLER_CLASS = "LineFollower"
 CV_CONTROLLER_INPUTS = ['cam/image_array']
 CV_CONTROLLER_OUTPUTS = ['pilot/steering', 'pilot/throttle', 'cv/image_array']
 CV_CONTROLLER_CONDITION = "run_pilot"
 #
 # # LineFollower - line color and detection area
-SCAN_Y = 50  # num pixels from the top to start horiz scan
+SCAN_Y = 100  # num pixels from the top to start horiz scan
 SCAN_HEIGHT = 130  # num pixels high to grab from horiz scan
-
-## THE DRIVERY VALUES
 COLOR_THRESHOLD_LOW = (
-    10,
-    20,
-    190,
+    27,
+    30,
+    173,
 )  # HSV dark yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
 COLOR_THRESHOLD_HIGH = (
-    50,
-    150,
-    220,
+    74,
+    226,
+    206,
 )  # HSV light yellow (opencv HSV hue value is 0..179, saturation and value are both 0..255)
-
-## FOR TESTING AT PIAS:
-# COLOR_THRESHOLD_LOW = (23, 74, 80)
-# COLOR_THRESHOLD_HIGH = (134, 255, 213)
-
-## TRACK EDGE VALUES
-EDGE_COLOR_THRESHOLD_LOW = (0, 0, 203)
-EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
-
-# EDGE_COLOR_THRESHOLD_LOW = (0, 0, 178)
-# EDGE_COLOR_THRESHOLD_HIGH = (179, 30, 255)
-
 #
 # # LineFollower - target (expected) line position and detection thresholds
-# TARGET_PIXEL = None       # If not None, then this is the expected horizontal position in pixels of the yellow line.
-TARGET_PIXEL = IMAGE_W // 2  # If None, then detect the position yellow line at startup;
+TARGET_PIXEL = None  # If not None, then this is the expected horizontal position in pixels of the yellow line.
+# If None, then detect the position yellow line at startup;
 # so this assumes you have positioned the car prior to starting.
 # Alternatively set this to IMAGE_W / 2 to follow middle line
-TARGET_THRESHOLD = 5  # number of pixels from TARGET_PIXEL that vehicle must be pointing
+TARGET_THRESHOLD = (
+    10  # number of pixels from TARGET_PIXEL that vehicle must be pointing
+)
 # before a steering change will be made; this prevents algorithm
 # from being too twitchy when it is on or near the line.
-CONFIDENCE_THRESHOLD = 0.0010  # The fraction of total sampled pixels that must be yellow in the sample slice.
+CONFIDENCE_THRESHOLD = 0.0015  # The fraction of total sampled pixels that must be yellow in the sample slice.
 # The sample slice will have SCAN_HEIGHT pixels and the total number
 # of sampled pixels is IMAGE_W x SCAN_HEIGHT, so if you want to make sure
 # that all the pixels in the sample slice are yellow, then the confidence
@@ -618,38 +596,19 @@ CONFIDENCE_THRESHOLD = 0.0010  # The fraction of total sampled pixels that must 
 # may want to lower the threshold.
 
 # # LineFollower - throttle step controller; increase throttle on straights, descrease on turns
-THROTTLE_MAX = 0.2  # maximum throttle value the controller will produce
-THROTTLE_MIN = 0.2  # minimum throttle value the controller will produce
+THROTTLE_MAX = 1  # maximum throttle value the controller will produce
+THROTTLE_MIN = 0.8  # minimum throttle value the controller will produce
 THROTTLE_INITIAL = THROTTLE_MIN  # initial throttle value
-THROTTLE_STEP = 0.02  # how much to change throttle when off the line
+THROTTLE_STEP = 0.05  # how much to change throttle when off the line
 
 # # These three PID constants are crucial to the way the car drives. If you are tuning them
 # # start by setting the others zero and focus on first Kp, then Kd, and then Ki.
-
-# Best values for the PID constants
-# PID_P = -0.424000  # proportional mult for PID path follower
-# PID_I = -0.000  # integral mult for PID path follower
-# PID_D = -0.312000  # differential mult for PID path follower
+PID_P = -0.01  # proportional mult for PID path follower
+PID_I = 0.000  # integral mult for PID path follower
+PID_D = -0.0001  # differential mult for PID path follower
 #
-# PID_P = -0.047100  # proportional mult for PID path follower
-# PID_I = -0.000  # integral mult for PID path follower
-# PID_D = -0.003500  # differential mult for PID path follower
-#
-PID_P = -0.043700  # proportional mult for PID path follower
-PID_I = -0.000  # integral mult for PID path follower
-PID_D = -0.004300  # differential mult for PID path follower
-#
-# PID_P = -10.0  # proportional mult for PID path follower
-# PID_I = 0.000  # integral mult for PID path follower
-# PID_D = -5
-#
-# PID_P = -0.03  # proportional mult for PID path follower
-# PID_I = 0.001  # integral mult for PID path follower
-# PID_D = -0.02  # differential mult for PID path follower
-#
-PID_P_DELTA = 0.0001  # amount the inc/dec function will change the P value
-PID_D_DELTA = 0.0001  # amount the inc/dec function will change the D value
-PID_I_DELTA = 0.01  # amount the inc/dec function will change the I value
+# PID_P_DELTA = 0.005   # amount the inc/dec function will change the P value
+# PID_D_DELTA = 0.00005 # amount the inc/dec function will change the D value
 #
 OVERLAY_IMAGE = True  # True to draw computer vision overlay on camera image in web ui
 # NOTE: this does not affect what is saved to the data
@@ -662,25 +621,8 @@ OVERLAY_IMAGE = True  # True to draw computer vision overlay on camera image in 
 # # NOTE: the cross button is already reserved for the emergency stop
 # #
 # TOGGLE_RECORDING_BTN = "option" # button to toggle recording mode
-INC_PID_D_BTN = "web/w1"  # button to change PID 'D' constant by PID_D_DELTA
-DEC_PID_D_BTN = "web/w2"  # button to change PID 'D' constant by -PID_D_DELTA
-INC_PID_P_BTN = "web/w3"  # button to change PID 'P' constant by PID_P_DELTA
-DEC_PID_P_BTN = "web/w4"  # button to change PID 'P' constant by -PID_P_DELTA
-DEC_PID_I_BTN = "web/w5"  # button to change PID 'I' constant by -PID_I_DELTA
+# INC_PID_D_BTN = None            # button to change PID 'D' constant by PID_D_DELTA
+# DEC_PID_D_BTN = None            # button to change PID 'D' constant by -PID_D_DELTA
+# INC_PID_P_BTN = "R2"            # button to change PID 'P' constant by PID_P_DELTA
+# DEC_PID_P_BTN = "L2"            # button to change PID 'P' constant by -PID_P_DELTA
 #
-## Display options
-SHOW_STEERING = True
-SHOW_THROTTLE = True
-#
-## Edge detection parameters
-CANNY_LOW_THRESHOLD = 12
-CANNY_HIGH_THRESHOLD = 200
-CANNY_KERNEL_SIZE = 17
-HOUGH_RHO = 1
-HOUGH_THETA = 0.04
-HOUGH_THRESHOLD = 1
-HOUGH_MIN_LINE_LENGTH = 40
-HOUGH_MAX_LINE_GAP = 17
-
-# The percentage of the track angle that will get added to the base steeing value
-TRACK_DIRECTION_PERCENTAGE = 0  # percentage as a decimal
