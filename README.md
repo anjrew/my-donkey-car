@@ -7,6 +7,7 @@ This project contains files relating to my work on the Donkey Car project. The D
 The environment is to be setup in conjunction with the [Donkey Car](http://www.donkeycar.com) platform [instructions on installing the software](http://docs.donkeycar.com/guide/install_software/#step-1-install-software-on-host-pc).
 
 The project can be setup in one of the three ways:
+
 - Dev container with VS Code
 - Local python virtual environment
 - Conda environment

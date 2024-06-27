@@ -152,11 +152,11 @@ def print_hsv_trackbars():
     print(f"High HSV = ({h_high}, {s_high}, {v_high})")
 
 
-def bgr_to_hsv(pixelRGB):
+def bgr_to_hsv(pixel_rgb):
     """
     Convert a single RGB pixel to HSV
     """
-    imgRGB = np.uint8([[pixelRGB]])  # type: ignore
+    imgRGB = np.uint8([[pixel_rgb]])  # type: ignore
     imgHSV = cv2.cvtColor(imgRGB, cv2.COLOR_BGR2HSV)  # type: ignore
     pixelHSV = imgHSV[0][0]
     return pixelHSV
@@ -188,7 +188,7 @@ def main(camera_index=0, width=640, height=480, file_image=None, config_path=Non
     cv2.createTrackbar("v-high", window_name, 255, 255, nothing)
 
     cv2.setMouseCallback(window_name, mouse_callback)
-   
+
     if config_path is not None:
         hsv_low, hsv_high = load_config(config_path)
         if hsv_low is not None and hsv_high is not None:
