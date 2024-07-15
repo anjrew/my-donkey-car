@@ -1,5 +1,10 @@
 # 🧱 BOM
 
+## Tools
+- [Electronic Pliers Set](https://www.amazon.de/dp/B000B9RK44?ref=ppx_yo2ov_dt_b_product_details&th=1)
+- [Electronics screw driver set](https://www.amazon.de/-/en/Precision-Mechanic-Screwdriver-Mechanics-Electronics/dp/B0B5GP98M8/ref=sr_1_11?crid=85WSNYEYT7E6&dib=eyJ2IjoiMSJ9.Ix7InWnsubRgNt_RDZN8XmaYkT0jyYY0oenngvrHwrc6kgVJeew5op485FkULiNhOVt1LscRizIRSgmOUyCJkXTK-kHsnTKgnbF1kEIfWxrh00kV1X9RUF8XhQJMQeTdyI2V9IyErCgjGgFQIi0YyqExVHPyJbVlpZxQjlNtbCf-2LX-n34qMKMuAoR7x-ILMjEm-qUpvPFsBoRyBcI_B8Kfc1GhmYxWzxAjwLBWNs4.Kb8piKSxA9N0jKQHlxUhUFmhL87mxFUcI2cxKhXfLBk&dib_tag=se&keywords=Electronic+screwdriver+set&qid=1721021013&refinements=p_85%3A20943776031%2Cp_72%3A419117031&rnid=419116031&rps=1&sprefix=electronic+screwdriver+set%2Caps%2C135&sr=8-11)
+
+## 🔌 Parts
 - [Wltoys 144010 1/14](https://de.banggood.com/Wltoys-144010-1-or-14-2_4G-4WD-High-Speed-Racing-Brushless-RC-Car-Vehicle-Models-75km-or-h-p-1933541.html)
 - [PCA9685 16-Channel 12-Bit PWM Servo Motor Driver I2C Module Robot](https://www.amazon.de/-/en/DollaTek-PCA9685-16-Channel-12-Bit-Driver/dp/B0BKZC1XWR/ref=sr_1_5?crid=224RSL2AA38NL&dib=eyJ2IjoiMSJ9.Ezu9Ei0LSBvdmfijkgBfWXJhjCNpaEsFBrxQFzkl24776R3rdCXkvqYa4d1jYD_KuEGmaUBH9ztQd3JNuwoa3mbHocD5jE17beOF9ZAUKs7yKk_y9xTNAWWedMt6fZbIUV5EeglpAjWm9rTZ4cyXmvN4oTQywiZt0XDgvgcwfBuYiFE_xDcZuzSa-RS_LfLNYxBntbj2FSfzklSCyAOUjRZTdiGUGUhctHKz7dkJIKg.riudPRFVM-kIwxttETifx4jx5d1LoE5_YxN9J1oz734&dib_tag=se&keywords=pca9685&qid=1719467766&sprefix=pca%2Caps%2C126&sr=8-5)
 - [Jumper Wires](https://www.amazon.de/-/en/EL-CP-004/dp/B01EV70C78/ref=sr_1_5?crid=2ISOIE0192VIA&dib=eyJ2IjoiMSJ9.QMvsCv-OL1-GLDfzEN_1j30AxevmKcN1aqjZUoO-nQnn_qDGM8oeIMBmkmoGxEg4Afm-bXC5l8DA1sNKApylpb53iomMJ57H3oyawJuK8FFABTqdF_H6swRTWfHo825QCKN4oPMeglTKsB0K-A96sCSIim3mvVeCxOQtmpifU3gBKoImhGdO2LFEy2z88yRvhWMZiKAq6mF6HA8MZ88MWWs9nAyHInukAFVE4l1j5SukUj-jHp2-gByu4BkBeRbM4TyIfqhfyXGqjw4rkrr0PCz6bOFmuQv7JPNtuFnTwQE.NctdQV9HQhe2AW5MbwIGbrmJGQ7okkfluVdlJZe2Lxc&dib_tag=se&keywords=Jumper+wires&qid=1719468098&sprefix=jumper+wires%2Caps%2C134&sr=8-5)
